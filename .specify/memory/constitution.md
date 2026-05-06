@@ -1,7 +1,7 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 → 1.2.0
+Version change: 1.2.0 → 1.2.1
 Added sections:
   - Propósito del Sistema
   - Clasificación de Datos (MEASURED / CALCULATED / ESTIMATED)
@@ -61,7 +61,7 @@ El sistema NO DEBE mostrar datos sin confianza asociada. NO DEBE inventar valore
 **Clasificación obligatoria de datos** — todo dato DEBE etiquetarse como una de:
 - `MEASURED` — medido directamente por un sensor (radar, micrófono, IMU...)
 - `CALCULATED` — derivado de mediciones mediante física directa (smash factor, ángulo de lanzamiento...)
-- `ESTIMATED` — inferido con un modelo (spin, trayectoria completa, carry...)
+- `ESTIMATED` — inferido con un modelo (spin, trayectoria completa, carry, punto de aterrizaje...)
 
 Nunca mezclar categorías sin etiquetar explícitamente.
 
@@ -249,6 +249,7 @@ El modo afecta: radar pipeline, BallisticsEngine, y la confianza reportada de ca
 | `launch_angle`  | float (°)    | `CALCULATED` |
 | `apex`          | float (m)    | `CALCULATED` |
 | `carry`         | float (m)    | `ESTIMATED`  |
+| `landing_spot`  | point (x, y) | `ESTIMATED`  |
 | `trajectory`    | list[point]  | `ESTIMATED`  |
 | `spin`          | float (rpm)  | `ESTIMATED`  |
 | `spin_axis`     | float (°)    | `ESTIMATED`  |
@@ -330,7 +331,7 @@ enmiendas DEBEN:
 Todos los PRs/revisiones DEBEN verificar el cumplimiento de los principios I-VII. La complejidad
 añadida DEBE justificarse explícitamente contra el Principio VII.
 
-**Version**: 1.2.0 | **Ratified**: 2026-05-05 | **Last Amended**: 2026-05-05
+**Version**: 1.2.1 | **Ratified**: 2026-05-05 | **Last Amended**: 2026-05-06
 
 ### I. Precisión de Medición (NON-NEGOTIABLE)
 

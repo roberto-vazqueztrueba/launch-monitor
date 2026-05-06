@@ -1,7 +1,7 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.2.0 → 1.2.1
+Version change: 1.2.1 → 1.2.2
 Added sections:
   - Propósito del Sistema
   - Clasificación de Datos (MEASURED / CALCULATED / ESTIMATED)
@@ -34,6 +34,7 @@ Templates requiring updates:
 Deferred TODOs:
   - Protocolo exacto RPi ↔ Pico: definir en primer feature de comunicación
   - SEN-14262: confirmar compatibilidad eléctrica con Pico antes de implementar driver
+  - SEN-14262 sustituido por MAX9814 (módulo con AGC integrado)
   - BNO055 vs MPU6050: confirmar sensor de inclinación final
 -->
 
@@ -76,7 +77,7 @@ depender de la implementación concreta de ningún sensor.
 
 Inventario de sensores/periféricos (a 2026-05-05):
 - **Radar**: Texas Instruments IWR6842BOOST (conectado directo a RPi)
-- **Micrófono**: SparkFun SEN-14262 (conectado a RPi Pico) — fuente de `t0`
+- **Micrófono**: MAX9814 (módulo con AGC integrado, conectado a RPi Pico) — fuente de `t0`
 - **Ambiental**: BME280 — temperatura, presión, humedad (RPi Pico)
 - **IMU**: MPU6050 / BNO055 — inclinación del dispositivo (RPi Pico) `TODO: confirmar modelo final`
 - **NFC**: PN532 (RPi Pico) — selección rápida de perfil
@@ -179,7 +180,7 @@ robustez es una restricción técnica, no una preferencia.
 │  │    (radar)   │    │       MicroPython         │  │
 │  │  USB/serial  │    │                           │  │
 │  └──────────────┘    │  ┌─────────┐ ┌─────────┐  │  │
-│                      │  │SEN-14262│ │ BME280  │  │  │
+│                      │  │ MAX9814 │ │ BME280  │  │  │
 │                      │  │  (mic)  │ │(ambient)│  │  │
 │                      │  └─────────┘ └─────────┘  │  │
 │                      │  ┌─────────┐ ┌─────────┐  │  │
@@ -331,7 +332,7 @@ enmiendas DEBEN:
 Todos los PRs/revisiones DEBEN verificar el cumplimiento de los principios I-VII. La complejidad
 añadida DEBE justificarse explícitamente contra el Principio VII.
 
-**Version**: 1.2.1 | **Ratified**: 2026-05-05 | **Last Amended**: 2026-05-06
+**Version**: 1.2.2 | **Ratified**: 2026-05-05 | **Last Amended**: 2026-05-06
 
 ### I. Precisión de Medición (NON-NEGOTIABLE)
 

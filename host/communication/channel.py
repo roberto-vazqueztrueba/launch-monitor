@@ -133,7 +133,11 @@ class SerialChannel:
                     baudrate=self._baudrate,
                     timeout=self._timeout,
                 )
-                ser.reset_input_buffer()  # discard any partial frame already in the buffer
+                # Synchronise to the next complete frame boundary by discarding
+                # everything up to and including the first '\n'.  This handles
+                # the race where the Pico sends bytes between Serial() and here.
+                ser.reset_input_buffer()
+                ser.readline()  # discard the first (potentially partial) line
                 with self._lock:
                     self._serial = ser
                 self._last_rx_time = time.monotonic()

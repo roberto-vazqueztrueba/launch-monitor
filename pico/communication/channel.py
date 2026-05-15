@@ -39,8 +39,8 @@ class UartChannel:
                 msg["timestamp_ms"] = utime.ticks_ms()
             if "payload" not in msg:
                 msg["payload"] = {}
-            line = ujson.dumps(msg) + "\n"
-            sys.stdout.write(line)
+            # print() flushes the USB CDC buffer after the newline in MicroPython
+            print(ujson.dumps(msg))
 
     def send_now(self, msg: dict) -> None:
         """Serialise and write *msg* immediately, bypassing the queue.
@@ -56,7 +56,7 @@ class UartChannel:
             msg["timestamp_ms"] = utime.ticks_ms()
         if "payload" not in msg:
             msg["payload"] = {}
-        sys.stdout.write(ujson.dumps(msg) + "\n")
+        print(ujson.dumps(msg))
 
     def read_command(self) -> dict | None:
         """Try to read one command from the host (non-blocking).

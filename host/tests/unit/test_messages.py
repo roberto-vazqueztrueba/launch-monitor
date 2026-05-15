@@ -67,3 +67,13 @@ class TestMakeHeartbeatAck:
         assert msg["payload"] == {}
         assert msg["version"] == PROTOCOL_VERSION
         assert isinstance(msg["timestamp_ms"], int)
+
+
+class TestMakeHeartbeatRequest:
+    def test_structure(self):
+        from host.communication.messages import make_heartbeat_request
+        msg = make_heartbeat_request()
+        assert msg["type"] == "heartbeat_request"
+        assert msg["payload"] == {}
+        assert msg["version"] == PROTOCOL_VERSION
+        assert isinstance(msg["timestamp_ms"], int)

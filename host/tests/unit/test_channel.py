@@ -56,3 +56,71 @@ class TestSerialChannelSend:
         written: bytes = mock_serial.write.call_args[0][0]
         assert written.endswith(b"\n")
         json.loads(written.strip())  # must be valid JSON
+
+
+# ---------------------------------------------------------------------------
+# ReconnectPolicy tests
+# ---------------------------------------------------------------------------
+
+class TestReconnectPolicy:
+    def test_defaults(self):
+        from host.communication.reconnect import ReconnectPolicy
+        p = ReconnectPolicy()
+        assert p.interval_s == 0.5
+        assert p.heartbeat_timeout_s == 5.0
+        assert p.max_attempts == 0
+
+    def test_custom_values(self):
+        from host.communication.reconnect import ReconnectPolicy
+        p = ReconnectPolicy(interval_s=1.0, heartbeat_timeout_s=10.0, max_attempts=3)
+        assert p.interval_s == 1.0
+        assert p.heartbeat_timeout_s == 10.0
+        assert p.max_attempts == 3
+
+
+# ---------------------------------------------------------------------------
+# SerialChannel uses ReconnectPolicy
+# ---------------------------------------------------------------------------
+
+class TestSerialChannelPolicy:
+    def _make_channel(self, policy=None):
+        from host.communication.dispatcher import EventDispatcher
+        from host.communication.channel import SerialChannel
+        from host.communication.reconnect import ReconnectPolicy
+
+        dispatcher = EventDispatcher()
+        p = policy or ReconnectPolicy()
+        with patch("serial.Serial"):
+            channel = SerialChannel(port="/dev/pico", dispatcher=dispatcher, policy=p)
+        return channel, p
+
+    def test_default_policy_applied(self):
+        from host.communication.reconnect import ReconnectPolicy
+        channel, _ = self._make_channel()
+        assert isinstance(channel._policy, ReconnectPolicy)
+        assert channel._policy.interval_s == 0.5
+
+    def test_custom_policy_stored(self):
+        from host.communication.reconnect import ReconnectPolicy
+        p = ReconnectPolicy(interval_s=2.0, max_attempts=5)
+        channel, stored = self._make_channel(policy=p)
+        assert channel._policy is stored
+        assert channel._policy.max_attempts == 5
+
+    def test_max_attempts_stops_open_port(self):
+        """_open_port() must stop retrying after max_attempts failures."""
+        from host.communication.dispatcher import EventDispatcher
+        from host.communication.channel import SerialChannel
+        from host.communication.reconnect import ReconnectPolicy
+        import serial as _serial
+
+        dispatcher = EventDispatcher()
+        p = ReconnectPolicy(interval_s=0, max_attempts=2)
+        channel = SerialChannel(port="/dev/pico", dispatcher=dispatcher, policy=p)
+        channel._running = True
+
+        with patch("serial.Serial", side_effect=_serial.SerialException("no device")):
+            with patch("time.sleep"):
+                channel._open_port()
+
+        assert channel._running is False  # gave up after max_attempts

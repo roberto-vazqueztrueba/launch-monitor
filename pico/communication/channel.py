@@ -100,8 +100,10 @@ class UartChannel:
         try:
             msg = ujson.loads(raw)
         except ValueError:
+            sys.stderr.write("WARN read_command: malformed JSON discarded: " + str(raw[:80]) + "\n")
             return None
         if not isinstance(msg, dict):
+            sys.stderr.write("WARN read_command: non-object JSON discarded\n")
             return None
         # Envelope field presence
         for key in ("type", "version", "timestamp_ms", "payload"):

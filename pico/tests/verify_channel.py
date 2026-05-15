@@ -76,6 +76,17 @@ def main():
                     '{"type":"debug","version":"1.0.0","timestamp_ms":%d,'
                     '"payload":{"echo":"buzzer_beep %s"}}\n' % (utime.ticks_ms(), pattern)
                 )
+            # Handle state transition
+            elif msg_type == "state_transition":
+                new_state = cmd["payload"].get("new_state", "")
+                sys.stdout.write(
+                    '{"type":"debug","version":"1.0.0","timestamp_ms":%d,'
+                    '"payload":{"echo":"state_transition %s"}}\n' % (utime.ticks_ms(), new_state)
+                )
+            # Handle heartbeat_request — respond with immediate heartbeat
+            elif msg_type == "heartbeat_request":
+                uptime = utime.ticks_diff(utime.ticks_ms(), boot_ms)
+                queue.push(m.heartbeat(uptime_ms=uptime, queue_size=queue.size()))
 
         utime.sleep_ms(FLUSH_INTERVAL_MS)
 

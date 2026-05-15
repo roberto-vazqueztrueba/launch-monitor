@@ -26,6 +26,10 @@ def main():
 
     boot_ms = utime.ticks_ms()
 
+    # Wait for USB CDC to fully initialise before sending the burst.
+    # Without this, the first messages may be dropped or concatenated.
+    utime.sleep_ms(2000)
+
     # --- Burst of test events on startup ---
     queue.push(m.t0_detected(confidence=0.95))
     queue.push(m.sensor_ambient(temperature_c=22.0, pressure_hpa=1012.5, humidity_pct=55.0))

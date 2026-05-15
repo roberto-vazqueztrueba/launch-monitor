@@ -39,12 +39,15 @@ class UartChannel:
                 msg["timestamp_ms"] = utime.ticks_ms()
             if "payload" not in msg:
                 msg["payload"] = {}
-            # print() adds \n; sleep gives USB CDC time to transmit this
-            # packet before the next message is queued in the same USB frame.
-            # Only sleep if there are more messages pending.
+            # print() adds \n and triggers a USB CDC packet flush in
+            # MicroPython 1.28.  No inter-message sleep is needed: the USB
+            # hardware handles framing and back-pressure, and each print()
+            # call produces its own packet on the wire.
+            # (The previous 50 ms sleep was added during early hardware
+            # testing to work around frame-concatenation seen with
+            # sys.stdout.write(); switching to print() eliminated the root
+            # cause, so the sleep has been removed entirely.)
             print(ujson.dumps(msg))
-            if not self._queue.empty():
-                utime.sleep_ms(50)
 
     def send_now(self, msg):
         """Serialise and write *msg* immediately, bypassing the queue.

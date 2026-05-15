@@ -65,7 +65,7 @@ def _print_msg(msg: dict) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Live Pico serial monitor")
-    parser.add_argument("--port", default="/dev/ttyACM0")
+    parser.add_argument("--port", default="/dev/pico")
     parser.add_argument("--time", type=int, default=0, help="Run for N seconds then exit (0=forever)")
     args = parser.parse_args()
 

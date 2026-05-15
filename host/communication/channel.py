@@ -34,7 +34,7 @@ class SerialChannel:
 
     def __init__(
         self,
-        port: str,
+        port: str = "/dev/pico",
         dispatcher: "EventDispatcher",
         baudrate: int = 115200,
         timeout: float = 1.0,

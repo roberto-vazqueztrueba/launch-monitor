@@ -10,13 +10,13 @@ from typing import TYPE_CHECKING
 
 import serial
 
+from .messages import PROTOCOL_VERSION
+
 if TYPE_CHECKING:
     from .dispatcher import EventDispatcher
     from .reconnect import ReconnectPolicy
 
 logger = logging.getLogger(__name__)
-
-PROTOCOL_VERSION = "1.0.0"
 
 
 class SerialChannel:

@@ -18,11 +18,25 @@ pip install pyserial
 
 ---
 
+## Crear symlink fijo `/dev/pico` (udev)
+
+El número de `/dev/ttyACMx` varía entre reinicios. Creamos un symlink permanente:
+
+```bash
+# En la RPi, como root:
+cat > /etc/udev/rules.d/99-pico.rules << 'EOF'
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2e8a", ATTRS{idProduct}=="0005", SYMLINK+="pico", MODE="0666"
+EOF
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+
+Después de reconectar el Pico, el dispositivo estará disponible como `/dev/pico`.
+
 ## Verificar que el Pico es visible en la RPi
 
 ```bash
-ls /dev/ttyACM*
-# Debe mostrar /dev/ttyACM0 (u otro número)
+ls /dev/pico
+# O si no tienes la udev rule: ls /dev/ttyACM*
 ```
 
 ---
@@ -51,7 +65,7 @@ from host.communication.channel import SerialChannel
 from host.communication.dispatcher import EventDispatcher
 
 dispatcher = EventDispatcher()
-channel = SerialChannel(port="/dev/ttyACM0", dispatcher=dispatcher)
+channel = SerialChannel(port="/dev/pico", dispatcher=dispatcher)  # default
 
 # Suscribirse a un tipo de evento
 @dispatcher.on("t0_detected")
@@ -90,7 +104,7 @@ channel.flush()  # Envía todos los mensajes pendientes al host
 
 Desde la RPi, usando `minicom` o `screen`:
 ```bash
-screen /dev/ttyACM0 115200
+screen /dev/pico 115200
 ```
 Si el Pico está enviando heartbeats, deberías ver líneas JSON cada 2 segundos:
 ```json
@@ -135,8 +149,9 @@ PYTHONPATH=. python3 -m pytest host/tests/unit/
 
 | Síntoma | Causa probable | Solución |
 |---------|----------------|----------|
+| No aparece `/dev/pico` | udev rule no aplicada o Pico no detectado | Reconectar Pico; ejecutar `udevadm trigger` |
 | No aparece `/dev/ttyACM0` | Pico no detectado | Comprobar cable USB; reiniciar Pico |
-| `Permission denied /dev/ttyACM0` | Usuario no en grupo `dialout` | `sudo usermod -a -G dialout $USER` + re-login |
+| `Permission denied /dev/pico` | Usuario no en grupo `dialout` | `sudo usermod -a -G dialout $USER` + re-login |
 | Sin mensajes del Pico | Firmware no iniciado | Verificar que `main.py` del Pico ejecuta el canal |
 | JSON malformado en logs | Bug en firmware Pico | Revisar `json.dumps()` en el Pico; comprobar encoding UTF-8 |
 | Latencia > 50 ms en `t0` | Cola del Pico llena | Reducir frecuencia de `sensor_ambient`; aumentar prioridad de `t0` |

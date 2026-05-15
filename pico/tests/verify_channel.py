@@ -2,7 +2,7 @@
 #
 # Flash this file onto the Pico (copy to flash root as main.py or run from REPL).
 # It sends a burst of test messages and then enters a heartbeat loop.
-# On the RPi, run: screen /dev/ttyACM0 115200 (or use minicom / pyserial)
+# On the RPi, run: screen /dev/pico 115200  (or /dev/ttyACMx if udev rule not set)
 #
 # Expected output (JSON lines):
 #   {"type":"t0_detected","version":"1.0.0","timestamp_ms":...,"payload":{"confidence":0.95}}

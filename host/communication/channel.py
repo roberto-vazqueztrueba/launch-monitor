@@ -25,7 +25,7 @@ class SerialChannel:
     :class:`EventDispatcher`. Automatically reconnects on USB disconnect.
 
     Args:
-        port: Device path, e.g. ``/dev/ttyACM0``.
+        port: Device path, e.g. ``/dev/pico`` (udev symlink) or ``/dev/ttyACM0``.
         dispatcher: :class:`EventDispatcher` instance to route messages.
         baudrate: Baud rate (conventional; USB CDC ignores this).
         timeout: Read timeout in seconds for the underlying serial port.

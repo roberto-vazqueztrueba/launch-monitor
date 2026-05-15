@@ -1,7 +1,7 @@
 """monitor.py — Live serial monitor for the RPi ↔ Pico channel.
 
 Usage (from repo root):
-    PYTHONPATH=. python3 host/tools/monitor.py [--port /dev/ttyACM0]
+    PYTHONPATH=. python3 host/tools/monitor.py [--port /dev/pico]
 
 Shows all incoming messages with colour-coded output and lets you send
 commands interactively by typing their shorthand.

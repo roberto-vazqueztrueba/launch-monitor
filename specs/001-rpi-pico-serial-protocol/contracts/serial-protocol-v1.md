@@ -12,7 +12,7 @@
 |-----------|-------|
 | Interfaz física | USB (cable Pico → RPi) |
 | Tipo de dispositivo | USB CDC ACM |
-| Device node en RPi | `/dev/ttyACM0` (puede variar; configurable) |
+| Device node en RPi | `/dev/pico` (symlink fijo via udev rule `99-pico.rules`; ver quickstart) |
 | Baud rate nominal | `115200` (sin efecto en USB CDC; convencional) |
 | Framing | Newline-delimited JSON — cada mensaje termina en `\n` |
 | Encoding | UTF-8 |

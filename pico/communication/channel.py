@@ -41,8 +41,10 @@ class UartChannel:
                 msg["payload"] = {}
             # print() adds \n; sleep gives USB CDC time to transmit this
             # packet before the next message is queued in the same USB frame.
+            # Only sleep if there are more messages pending.
             print(ujson.dumps(msg))
-            utime.sleep_ms(50)
+            if not self._queue.empty():
+                utime.sleep_ms(50)
 
     def send_now(self, msg: dict) -> None:
         """Serialise and write *msg* immediately, bypassing the queue.

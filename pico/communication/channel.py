@@ -41,7 +41,6 @@ class UartChannel:
                 msg["payload"] = {}
             line = ujson.dumps(msg) + "\n"
             sys.stdout.write(line)
-            sys.stdout.flush()  # force USB CDC packet boundary after each frame
 
     def send_now(self, msg: dict) -> None:
         """Serialise and write *msg* immediately, bypassing the queue.

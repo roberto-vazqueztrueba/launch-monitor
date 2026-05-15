@@ -149,6 +149,7 @@ class SerialChannel:
 
     def _read_loop(self) -> None:
         """Read newline-delimited frames and dispatch them."""
+        buf = b""
         while self._running:
             with self._lock:
                 ser = self._serial
@@ -165,15 +166,21 @@ class SerialChannel:
                     pass
 
             try:
-                raw = ser.readline()
+                chunk = ser.read(ser.in_waiting or 1)
             except serial.SerialException:
                 raise
 
-            if not raw:
+            if not chunk:
                 continue
 
             self._last_rx_time = time.monotonic()
-            self._dispatcher.dispatch(raw)
+            buf += chunk
+
+            # Dispatch every complete newline-delimited frame in the buffer
+            while b"\n" in buf:
+                line, buf = buf.split(b"\n", 1)
+                if line.strip():
+                    self._dispatcher.dispatch(line)
 
     def _close_port(self) -> None:
         with self._lock:

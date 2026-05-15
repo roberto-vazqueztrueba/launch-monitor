@@ -150,8 +150,11 @@ class SerialChannel:
                     write_timeout=self._timeout,
                 )
                 # Discard at most one partial frame that may be in-flight when
-                # the port opens. Subsequent messages will be complete lines.
-                ser.reset_input_buffer()
+                # the port opens.  reset_input_buffer() would silently drop all
+                # already-buffered complete events (including t0_detected); instead
+                # read up to one line so only the partial frame is consumed and any
+                # complete newline-terminated messages queued before it are preserved.
+                ser.readline(_MAX_FRAME_BYTES)
                 with self._lock:
                     self._serial = ser
                 self._last_rx_time = time.monotonic()

@@ -7,6 +7,9 @@
 #   1. Envía un burst de mensajes de prueba
 #   2. Queda escuchando comandos entrantes durante 30 s
 #   3. Imprime cada comando recibido en la consola
+#
+# NOTA: los mensajes de diagnóstico van a sys.stderr para no contaminar el
+# canal de protocolo JSON (sys.stdout). Thonny y mpremote los muestran igual.
 
 import sys
 import utime
@@ -19,12 +22,16 @@ import messages as m
 LISTEN_S = 30
 
 
+def _log(msg):
+    sys.stderr.write(msg + "\n")
+
+
 def main() -> None:
     q = EventQueue(maxlen=20)
     ch = UartChannel(queue=q)
 
-    print("=== Pico loopback tool ===")
-    print(f"Enviando burst y escuchando comandos durante {LISTEN_S} s...")
+    _log("=== Pico loopback tool ===")
+    _log("Enviando burst y escuchando comandos durante {} s...".format(LISTEN_S))
 
     # Burst de prueba
     q.push(m.t0_detected(0.99))
@@ -35,16 +42,16 @@ def main() -> None:
     q.push(m.input_nfc("DE:AD:BE:EF"))
     q.push(m.heartbeat(uptime_ms=utime.ticks_ms(), queue_size=q.size()))
     ch.flush()
-    print("Burst enviado.")
+    _log("Burst enviado.")
 
     deadline = utime.ticks_add(utime.ticks_ms(), LISTEN_S * 1000)
     while utime.ticks_diff(deadline, utime.ticks_ms()) > 0:
         cmd = ch.read_command()
         if cmd:
-            print("CMD recibido:", cmd["type"], cmd.get("payload", {}))
+            _log("CMD recibido: {} {}".format(cmd["type"], cmd.get("payload", {})))
         utime.sleep_ms(20)
 
-    print("=== Fin del loopback ===")
+    _log("=== Fin del loopback ===")
 
 
 if __name__ == "__main__":

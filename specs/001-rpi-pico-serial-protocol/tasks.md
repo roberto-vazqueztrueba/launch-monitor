@@ -3,7 +3,7 @@
 **Feature**: `001-rpi-pico-serial-protocol`
 **Branch**: `001-rpi-pico-serial-protocol`
 **Generated**: 2026-05-13
-**Status**: Implementación completada ✅
+**Status**: Implementación completada y verificada en hardware ✅
 
 > **Nota**: Este archivo fue generado a posteriori. Las tareas marcadas `[x]` ya han sido
 > implementadas y verificadas con `pytest` (24/24 tests pasan). Las tareas pendientes corresponden
@@ -97,9 +97,9 @@ lo descarta, registra en log y sigue procesando mensajes válidos.
 
 ## Phase 6 — Polish & Cross-cutting
 
-- [ ] T022 [P] Crear `host/communication/__init__.py` expone `SerialChannel`, `EventDispatcher` y factories (ya creado; verificar exports completos) ✅
-- [ ] T023 Verificar en hardware: conectar Pico + RPi, flashear `pico/tests/verify_channel.py` como `main.py`, ejecutar `py -3 -m pytest host/tests/unit/ -v` desde RPi
-- [ ] T024 Documentar en `quickstart.md` el comando de test unitario (ya documentado en spec) ✅
+- [x] T022 [P] Crear `host/communication/__init__.py` expone `SerialChannel`, `EventDispatcher` y factories (ya creado; verificar exports completos) ✅
+- [x] T023 Verificar en hardware: conectar Pico + RPi, flashear `pico/tests/verify_channel.py` como `main.py`, ejecutar `py -3 -m pytest host/tests/unit/ -v` desde RPi
+- [x] T024 Documentar en `quickstart.md` el comando de test unitario (ya documentado en spec) ✅
 
 ---
 

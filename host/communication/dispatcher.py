@@ -102,8 +102,11 @@ class EventDispatcher:
             logger.warning("Field 'version' must be a string — discarded: %r", version)
             return
         parts = version.split(".")
-        if len(parts) < 2 or not all(p.isdigit() for p in parts):
-            logger.warning("Field 'version' is not a valid semver string — discarded: %r", version)
+        if len(parts) != 3 or not all(p.isdigit() for p in parts):
+            logger.warning(
+                "Field 'version' must be a MAJOR.MINOR.PATCH numeric string — discarded: %r",
+                version,
+            )
             return
 
         ts = msg["timestamp_ms"]

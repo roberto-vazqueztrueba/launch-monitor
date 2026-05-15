@@ -72,16 +72,24 @@ class UartChannel:
             Parsed message dict if a complete JSON line was available,
             ``None`` otherwise. Malformed lines are discarded silently.
         """
-        # MicroPython's sys.stdin has no readline in non-blocking mode by
-        # default; use select to avoid blocking.
+        # Read one byte at a time so we never block on readline() waiting
+        # for a newline that may arrive in a later USB packet.
         import select
-        ready = select.select([sys.stdin], [], [], 0)[0]
-        if not ready:
-            return None
-        raw = sys.stdin.readline()
-        if not raw:
-            return None
-        raw = raw.strip()
+        buf = b""
+        while True:
+            ready = select.select([sys.stdin], [], [], 0)[0]
+            if not ready:
+                # No byte available right now — return what we accumulated.
+                # Incomplete frames are silently dropped; the host will
+                # retransmit or the next call will start fresh.
+                return None
+            ch = sys.stdin.read(1)
+            if not ch:
+                return None
+            if ch == "\n":
+                break
+            buf += ch.encode() if isinstance(ch, str) else ch
+        raw = buf.strip()
         if not raw:
             return None
         try:

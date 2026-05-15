@@ -1,15 +1,24 @@
-# loopback.py — Test de loopback: el Pico envía mensajes y escucha sus propios ecos
+# loopback.py — Pico channel smoke-test tool
 #
-# Útil para verificar que el canal bidireccional funciona sin necesitar la RPi.
-# Ejecutar desde Thonny o mpremote como script independiente.
+# Sends a burst of v1 event messages over USB CDC and then listens for
+# incoming host commands for 30 seconds, printing each one to sys.stderr.
 #
-# Comportamiento:
-#   1. Envía un burst de mensajes de prueba
-#   2. Queda escuchando comandos entrantes durante 30 s
-#   3. Imprime cada comando recibido en la consola
+# NOTE: despite the name, this is NOT a true loopback — the script does not
+# wire its own stdout back into stdin.  A true loopback would require either
+# a hardware TX→RX short or a host process echoing bytes, neither of which is
+# practical over USB CDC in MicroPython.
 #
-# NOTA: los mensajes de diagnóstico van a sys.stderr para no contaminar el
-# canal de protocolo JSON (sys.stdout). Thonny y mpremote los muestran igual.
+# What it DOES verify:
+#   • UartChannel.flush() encodes and writes all queued messages correctly
+#   • UartChannel.read_command() can parse incoming commands from the host
+#   • The full v1 message catalogue is exercisable from the Pico side
+#
+# To test the receive side, run a host script that sends commands after the
+# burst (e.g. host/tools/monitor.py or the REPL helpers) while this script
+# is running.
+#
+# To view output: mpremote run pico/tools/loopback.py
+# Diagnostic messages go to sys.stderr; JSON protocol frames go to stdout.
 
 import sys
 import utime

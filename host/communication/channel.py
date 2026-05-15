@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_MAX_FRAME_BYTES = 4096  # largest valid JSON frame; protects against noisy/no-newline input
+
 
 class SerialChannel:
     """Opens a serial port and reads newline-delimited JSON messages in a
@@ -176,11 +178,15 @@ class SerialChannel:
                     logger.debug("heartbeat_request send failed: %s", exc)
 
             try:
-                raw = ser.readline()
+                raw = ser.readline(_MAX_FRAME_BYTES)
             except serial.SerialException:
                 raise
 
             if not raw:
+                continue
+
+            if len(raw) == _MAX_FRAME_BYTES and not raw.endswith(b"\n"):
+                logger.warning("Frame exceeded %d bytes without newline — discarded", _MAX_FRAME_BYTES)
                 continue
 
             self._last_rx_time = time.monotonic()

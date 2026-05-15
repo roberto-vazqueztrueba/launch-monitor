@@ -132,7 +132,7 @@ class UartChannel:
         cmd_type = msg["type"]
         payload = msg["payload"]
         if cmd_type == "led_set":
-            if not isinstance(payload.get("led_id"), str) or not payload.get("led_id"):
+            if payload.get("led_id") not in ("status", "mode", "error"):
                 return None
             if payload.get("state") not in ("on", "off", "blink_slow", "blink_fast"):
                 return None

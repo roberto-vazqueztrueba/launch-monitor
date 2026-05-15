@@ -227,6 +227,15 @@ class TestPicoCommandPayloadValidation:
         msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "", "state": "off"}}
         assert _parse(msg) is None
 
+    def test_led_set_unknown_led_id(self):
+        msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "rgb", "state": "on"}}
+        assert _parse(msg) is None
+
+    def test_led_set_all_valid_led_ids(self):
+        for led_id in ("status", "mode", "error"):
+            msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": led_id, "state": "on"}}
+            assert _parse(msg) is not None, led_id
+
     # --- buzzer_beep ---
 
     def test_buzzer_beep_valid(self):

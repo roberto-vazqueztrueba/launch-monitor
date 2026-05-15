@@ -124,10 +124,9 @@ def test_dispatcher_calls_handler_on_valid_message():
     assert received[0]["payload"]["confidence"] == 0.9
 ```
 
-Ejecutar:
+Ejecutar desde la raíz del repositorio:
 ```bash
-cd host
-pytest tests/unit/
+PYTHONPATH=. python3 -m pytest host/tests/unit/
 ```
 
 ---

@@ -38,8 +38,9 @@ def main() -> None:
 
         cmd = channel.read_command()
         if cmd is not None:
-            # Commands will be handled here as features are added
-            pass
+            if cmd["type"] == "heartbeat_request":
+                uptime = utime.ticks_diff(utime.ticks_ms(), boot_ms)
+                queue.push(m.heartbeat(uptime_ms=uptime, queue_size=queue.size()))
 
         utime.sleep_ms(FLUSH_INTERVAL_MS)
 

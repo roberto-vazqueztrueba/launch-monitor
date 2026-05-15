@@ -61,7 +61,7 @@ descarta, registra el error en el log y sigue procesando mensajes válidos poste
 
 1. **Given** canal activo, **When** llega un mensaje JSON malformado, **Then** se descarta, se registra en el log y el sistema no se bloquea.
 2. **Given** canal activo, **When** no se recibe ningún mensaje durante más de 5 segundos, **Then** la RPi emite un `heartbeat_request` y espera respuesta del Pico.
-3. **Given** pérdida de conexión USB, **When** se reconecta el dispositivo, **Then** ambos nodos reestablecen el canal automáticamente y retoman el intercambio.
+3. **Given** pérdida de conexión USB, **When** se reconecta el dispositivo, **Then** ambos nodos restablecen el canal automáticamente y retoman el intercambio.
 
 ---
 

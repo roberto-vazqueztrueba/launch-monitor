@@ -11,10 +11,11 @@
 
 import utime
 import sys
-
-from communication.channel import UartChannel
-from communication.event_queue import EventQueue
-from communication import messages as m
+if "communication" not in sys.path:
+    sys.path.append("communication")
+from channel import UartChannel
+from event_queue import EventQueue
+import messages as m
 
 HEARTBEAT_INTERVAL_MS = 2000
 FLUSH_INTERVAL_MS = 10

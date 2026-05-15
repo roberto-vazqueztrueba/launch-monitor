@@ -8,10 +8,13 @@
 #   2. Queda escuchando comandos entrantes durante 30 s
 #   3. Imprime cada comando recibido en la consola
 
+import sys
 import utime
-from communication.channel import UartChannel
-from communication.event_queue import EventQueue
-from communication import messages as m
+if "communication" not in sys.path:
+    sys.path.append("communication")
+from channel import UartChannel
+from event_queue import EventQueue
+import messages as m
 
 LISTEN_S = 30
 

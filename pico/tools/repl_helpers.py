@@ -1,15 +1,19 @@
 # repl_helpers.py — Atajos para usar desde el REPL de MicroPython (Thonny o mpremote)
 #
-# Uso:
-#   >>> from tools.repl_helpers import *
+# Uso (desde el directorio raíz del Pico):
+#   >>> exec(open("tools/repl_helpers.py").read())
 #   >>> t0()           # envía t0_detected
 #   >>> btn("BAD_SHOT") # envía input_button
 #   >>> hb()           # envía heartbeat
 #   >>> send_all()     # envía uno de cada tipo
 
-from communication.channel import UartChannel
-from communication.event_queue import EventQueue
-from communication import messages as m
+import sys
+if "communication" not in sys.path:
+    sys.path.append("communication")
+
+from channel import UartChannel
+from event_queue import EventQueue
+import messages as m
 
 _q = EventQueue(maxlen=20)
 _ch = UartChannel(queue=_q)

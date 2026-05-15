@@ -22,7 +22,7 @@ _ch = UartChannel(queue=_q)
 def _flush(msg: dict) -> None:
     _q.push(msg)
     _ch.flush()
-    print("sent:", msg["type"])
+    sys.stderr.write("sent: " + msg["type"] + "\n")
 
 
 def t0(confidence: float = 0.95) -> None:

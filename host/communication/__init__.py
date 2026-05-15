@@ -7,6 +7,7 @@ from .messages import (
     make_buzzer_beep,
     make_state_transition,
     make_heartbeat_ack,
+    make_heartbeat_request,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "make_buzzer_beep",
     "make_state_transition",
     "make_heartbeat_ack",
+    "make_heartbeat_request",
 ]

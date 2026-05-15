@@ -54,8 +54,6 @@ VALID_CMD = {
 
 def _make_channel_with_input(line: str):
     """Return a UartChannel whose stdin yields *line* byte-by-byte."""
-    import select as _select_real
-
     # Import fresh each time to avoid state leakage from _rx_buf
     if "channel" in sys.modules:
         del sys.modules["channel"]
@@ -78,6 +76,7 @@ def _make_channel_with_input(line: str):
             return chars[i]
         return ""
 
+    real_select = sys.modules.get("select")
     select_mod = types.ModuleType("select")
     select_mod.select = fake_select
     sys.modules["select"] = select_mod
@@ -92,9 +91,15 @@ def _make_channel_with_input(line: str):
     mock_stdin.read.side_effect = lambda n: fake_read(n)
     sys.stdin = mock_stdin
 
-    result = ch.read_command()
+    try:
+        result = ch.read_command()
+    finally:
+        sys.stdin = real_stdin
+        if real_select is None:
+            sys.modules.pop("select", None)
+        else:
+            sys.modules["select"] = real_select
 
-    sys.stdin = real_stdin
     return result
 
 
@@ -159,6 +164,7 @@ class TestPicoChannelValidation:
         idx = {"i": 0}
 
         import types as _types
+        real_select = sys.modules.get("select")
         select_mod = _types.ModuleType("select")
         select_mod.select = lambda r, w, x, t: (r, [], []) if idx["i"] < len(chars) else ([], [], [])
         sys.modules["select"] = select_mod
@@ -173,8 +179,14 @@ class TestPicoChannelValidation:
 
         real_stdin = sys.stdin
         sys.stdin = mock_stdin
-        result = ch.read_command()
-        sys.stdin = real_stdin
+        try:
+            result = ch.read_command()
+        finally:
+            sys.stdin = real_stdin
+            if real_select is None:
+                sys.modules.pop("select", None)
+            else:
+                sys.modules["select"] = real_select
 
         assert result is None
         assert ch._rx_buf == b""  # buffer reset after discard

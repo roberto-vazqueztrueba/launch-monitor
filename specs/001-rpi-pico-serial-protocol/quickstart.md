@@ -130,30 +130,37 @@ Si el Pico está enviando heartbeats, deberías ver líneas JSON cada 2 segundos
 
 ## Test unitario del canal en el host
 
+El ejemplo muestra cómo testear `SerialChannel.send()` sin puerto físico, mockeando `serial.Serial`:
+
 ```python
 # tests/unit/test_channel.py
-from unittest.mock import MagicMock, patch
 import json
+from unittest.mock import MagicMock, patch
 
-def test_dispatcher_calls_handler_on_valid_message():
+def test_send_adds_version_and_timestamp():
+    from host.communication.channel import SerialChannel, PROTOCOL_VERSION
     from host.communication.dispatcher import EventDispatcher
+
     dispatcher = EventDispatcher()
-    received = []
-    dispatcher.on("t0_detected")(lambda msg: received.append(msg))
+    with patch("serial.Serial"):
+        channel = SerialChannel(port="/dev/pico", dispatcher=dispatcher)
 
-    raw = json.dumps({
-        "type": "t0_detected",
-        "version": "1.0.0",
-        "timestamp_ms": 1000,
-        "payload": {"confidence": 0.9}
-    }).encode() + b"\n"
+    mock_serial = MagicMock()
+    mock_serial.is_open = True
+    channel._serial = mock_serial
 
-    dispatcher.dispatch(raw)
-    assert len(received) == 1
-    assert received[0]["payload"]["confidence"] == 0.9
+    channel.send({"type": "led_set", "payload": {"led_id": "status", "state": "on"}})
+
+    written = mock_serial.write.call_args[0][0].decode("utf-8").strip()
+    msg = json.loads(written)
+    assert msg["version"] == PROTOCOL_VERSION
+    assert "timestamp_ms" in msg
+    assert msg["type"] == "led_set"
 ```
 
-Ejecutar desde la raíz del repositorio:
+Para testear el dispatcher directamente, ver `host/tests/unit/test_dispatcher.py`.
+
+Ejecutar todos los tests unitarios desde la raíz del repositorio:
 ```bash
 PYTHONPATH=. python3 -m pytest host/tests/unit/
 ```

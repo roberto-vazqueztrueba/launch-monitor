@@ -22,6 +22,7 @@ class UartChannel:
 
     def __init__(self, queue) -> None:
         self._queue = queue
+        self._rx_buf = b""  # persists across read_command() calls
 
     def flush(self) -> None:
         """Drain the queue and write each message as a JSON line.
@@ -74,22 +75,21 @@ class UartChannel:
         """
         # Read one byte at a time so we never block on readline() waiting
         # for a newline that may arrive in a later USB packet.
+        # _rx_buf persists across calls so partial frames are completed on
+        # the next polling iteration rather than being discarded.
         import select
-        buf = b""
         while True:
             ready = select.select([sys.stdin], [], [], 0)[0]
             if not ready:
-                # No byte available right now — return what we accumulated.
-                # Incomplete frames are silently dropped; the host will
-                # retransmit or the next call will start fresh.
                 return None
             ch = sys.stdin.read(1)
             if not ch:
                 return None
             if ch == "\n":
+                raw = self._rx_buf.strip()
+                self._rx_buf = b""
                 break
-            buf += ch.encode() if isinstance(ch, str) else ch
-        raw = buf.strip()
+            self._rx_buf += ch.encode() if isinstance(ch, str) else ch
         if not raw:
             return None
         try:

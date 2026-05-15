@@ -11,7 +11,7 @@ canal es la infraestructura fundacional del sistema: sin él, la RPi no puede re
 micrófono ni controlar LEDs/buzzer del Pico.
 
 Decisión técnica clave: **pyserial** en el host (lectura no bloqueante en hilo dedicado) +
-**uart nativo de MicroPython** en el Pico con cola de eventos FIFO.
+**USB CDC de MicroPython (vía `sys.stdout`/`sys.stdin`)** en el Pico con cola de eventos FIFO.
 
 ## Technical Context
 

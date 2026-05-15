@@ -36,7 +36,7 @@ class EventQueue:
                 pass
         self._q.append(msg)
 
-    def pop(self) -> dict | None:
+    def pop(self):
         """Dequeue and return the oldest message, or ``None`` if empty."""
         try:
             return self._q.popleft()

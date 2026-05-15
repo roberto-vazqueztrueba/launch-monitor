@@ -9,7 +9,7 @@ import utime
 _VERSION = "1.0.0"
 
 
-def _msg(msg_type: str, payload: dict, timestamp_ms: int | None = None) -> dict:
+def _msg(msg_type, payload, timestamp_ms=None):
     return {
         "type": msg_type,
         "version": _VERSION,
@@ -55,7 +55,7 @@ def input_button(button_id: str, action: str) -> dict:
     return _msg("input_button", {"button_id": button_id, "action": action})
 
 
-def input_encoder(action: str, direction: str | None = None, steps: int | None = None) -> dict:
+def input_encoder(action, direction=None, steps=None):
     """Rotary encoder event.
 
     Args:

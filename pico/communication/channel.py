@@ -46,7 +46,7 @@ class UartChannel:
             if not self._queue.empty():
                 utime.sleep_ms(50)
 
-    def send_now(self, msg: dict) -> None:
+    def send_now(self, msg):
         """Serialise and write *msg* immediately, bypassing the queue.
 
         Use sparingly — prefer :meth:`flush` with the queue for normal flow.

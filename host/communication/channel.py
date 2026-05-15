@@ -133,11 +133,11 @@ class SerialChannel:
                     baudrate=self._baudrate,
                     timeout=self._timeout,
                 )
-                # Synchronise to the next complete frame boundary by discarding
-                # everything up to and including the first '\n'.  This handles
-                # the race where the Pico sends bytes between Serial() and here.
+                # Discard lines until we receive one that parses as valid JSON.
+                # This guarantees we start processing on a complete frame boundary
+                # regardless of when the port was opened relative to Pico writes.
                 ser.reset_input_buffer()
-                ser.readline()  # discard the first (potentially partial) line
+                self._sync_to_valid_frame(ser)
                 with self._lock:
                     self._serial = ser
                 self._last_rx_time = time.monotonic()
@@ -147,9 +147,29 @@ class SerialChannel:
                 logger.debug("Cannot open %s: %s — retrying in %.1f s", self._port, exc, _RECONNECT_INTERVAL_S)
                 time.sleep(_RECONNECT_INTERVAL_S)
 
+    def _sync_to_valid_frame(self, ser: serial.Serial) -> None:
+        """Discard lines until one parses as valid JSON. Max 10 attempts."""
+        for _ in range(10):
+            raw = ser.readline()
+            if not raw:
+                continue
+            try:
+                json.loads(raw.decode("utf-8"))
+                # Valid JSON — push it back by pre-seeding the dispatcher after assignment
+                self._pending_frame = raw
+                return
+            except Exception:
+                logger.debug("Sync: discarding partial frame %r", raw[:60])
+        self._pending_frame = None
+
     def _read_loop(self) -> None:
         """Read newline-delimited frames and dispatch them."""
-        buf = b""
+        # Dispatch the pre-synced frame saved during _open_port if present
+        pending = getattr(self, "_pending_frame", None)
+        if pending:
+            self._dispatcher.dispatch(pending)
+            self._pending_frame = None
+
         while self._running:
             with self._lock:
                 ser = self._serial
@@ -166,21 +186,15 @@ class SerialChannel:
                     pass
 
             try:
-                chunk = ser.read(ser.in_waiting or 1)
+                raw = ser.readline()
             except serial.SerialException:
                 raise
 
-            if not chunk:
+            if not raw:
                 continue
 
             self._last_rx_time = time.monotonic()
-            buf += chunk
-
-            # Dispatch every complete newline-delimited frame in the buffer
-            while b"\n" in buf:
-                line, buf = buf.split(b"\n", 1)
-                if line.strip():
-                    self._dispatcher.dispatch(line)
+            self._dispatcher.dispatch(raw)
 
     def _close_port(self) -> None:
         with self._lock:

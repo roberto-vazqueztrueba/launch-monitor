@@ -142,3 +142,39 @@ class TestPicoChannelValidation:
     def test_rejects_malformed_json(self):
         result = _make_channel_with_input("not json\n")
         assert result is None
+
+    def test_oversized_frame_without_newline_is_discarded(self):
+        """_rx_buf exceeding _MAX_FRAME bytes without a newline must be discarded."""
+        if "channel" in sys.modules:
+            del sys.modules["channel"]
+        import channel as pico_channel
+
+        from event_queue import EventQueue
+        q = EventQueue(maxlen=5)
+        ch = pico_channel.UartChannel(queue=q)
+
+        # Fill _rx_buf beyond the limit without ever sending a newline
+        oversized = "x" * (ch._MAX_FRAME + 1)
+        chars = list(oversized)
+        idx = {"i": 0}
+
+        import types as _types
+        select_mod = _types.ModuleType("select")
+        select_mod.select = lambda r, w, x, t: (r, [], []) if idx["i"] < len(chars) else ([], [], [])
+        sys.modules["select"] = select_mod
+
+        from unittest.mock import MagicMock
+        mock_stdin = MagicMock()
+        def _read(n):
+            i = idx["i"]
+            idx["i"] += 1
+            return chars[i] if i < len(chars) else ""
+        mock_stdin.read.side_effect = _read
+
+        real_stdin = sys.stdin
+        sys.stdin = mock_stdin
+        result = ch.read_command()
+        sys.stdin = real_stdin
+
+        assert result is None
+        assert ch._rx_buf == b""  # buffer reset after discard

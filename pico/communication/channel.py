@@ -23,6 +23,7 @@ class UartChannel:
     def __init__(self, queue) -> None:
         self._queue = queue
         self._rx_buf = b""  # persists across read_command() calls
+        self._MAX_FRAME = 1024  # max bytes before discarding partial frame (RAM guard)
 
     def flush(self) -> None:
         """Drain the queue and write each message as a JSON line.
@@ -90,6 +91,10 @@ class UartChannel:
                 self._rx_buf = b""
                 break
             self._rx_buf += ch.encode() if isinstance(ch, str) else ch
+            if len(self._rx_buf) > self._MAX_FRAME:
+                # Host sent too many bytes without a newline — discard and reset
+                self._rx_buf = b""
+                return None
         if not raw:
             return None
         try:

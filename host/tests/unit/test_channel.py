@@ -45,6 +45,16 @@ class TestSerialChannelSend:
         # Should not raise; message is silently dropped
         channel.send({"type": "heartbeat_ack", "payload": {}})
 
+    def test_send_handles_write_timeout(self):
+        import serial as _serial
+        channel, _ = self._make_channel()
+        mock_serial = MagicMock()
+        mock_serial.is_open = True
+        mock_serial.write.side_effect = _serial.SerialTimeoutException("write timeout")
+        channel._serial = mock_serial
+        # Must not raise; timeout is logged and message dropped
+        channel.send({"type": "heartbeat_ack", "payload": {}})
+
     def test_send_writes_newline_terminated_json(self):
         channel, _ = self._make_channel()
         mock_serial = MagicMock()

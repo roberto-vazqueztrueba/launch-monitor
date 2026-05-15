@@ -103,6 +103,8 @@ class SerialChannel:
             if self._serial and self._serial.is_open:
                 try:
                     self._serial.write(raw)
+                except serial.SerialTimeoutException as exc:
+                    logger.warning("Send timed out (device stalled?): %s — message dropped", exc)
                 except serial.SerialException as exc:
                     logger.warning("Send failed: %s", exc)
             else:
@@ -137,6 +139,7 @@ class SerialChannel:
                     port=self._port,
                     baudrate=self._baudrate,
                     timeout=self._timeout,
+                    write_timeout=self._timeout,
                 )
                 # Discard at most one partial frame that may be in-flight when
                 # the port opens. Subsequent messages will be complete lines.

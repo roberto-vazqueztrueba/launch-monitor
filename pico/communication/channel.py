@@ -107,6 +107,10 @@ class UartChannel:
             return None
         if not isinstance(msg["payload"], dict):
             return None
+        # timestamp_ms must be a non-negative integer
+        ts = msg["timestamp_ms"]
+        if not isinstance(ts, int) or ts < 0:
+            return None
         # Version: must be exactly "1.x.x" with numeric components
         version = msg["version"]
         if not isinstance(version, str):

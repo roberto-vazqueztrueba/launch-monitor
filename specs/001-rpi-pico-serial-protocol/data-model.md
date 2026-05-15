@@ -235,6 +235,6 @@ Sin campos en payload — es una confirmación de que el host sigue activo.
    - No es JSON válido
    - Falta cualquiera de los campos obligatorios (`type`, `version`, `timestamp_ms`, `payload`)
    - `payload` no es un objeto
-2. Un mensaje con `type` desconocido DEBE encolarse con advertencia, no descartarse (para
-   compatibilidad hacia adelante)
+2. Un mensaje con `type` desconocido DEBE aceptarse y loguearse en DEBUG, no descartarse (para
+   compatibilidad hacia adelante — forward-compatible)
 3. Un mensaje con `version` incompatible (MAJOR diferente) DEBE descartarse con log de error

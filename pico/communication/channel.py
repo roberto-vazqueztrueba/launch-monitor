@@ -62,7 +62,7 @@ class UartChannel:
             msg["payload"] = {}
         print(ujson.dumps(msg))
 
-    def read_command(self) -> dict | None:
+    def read_command(self):
         """Try to read one command from the host (non-blocking).
 
         Returns:

@@ -1,7 +1,9 @@
 # main.py — Pico entry point
 #
-# Minimal production bootstrap: sends heartbeats every 2s and currently
-# ignores incoming commands. Sensor drivers will be added in future features.
+# Minimal production bootstrap: sends heartbeats every 2s and handles the
+# v1 command set. Hardware drivers (GPIO, PWM) will be wired in future
+# features; for now each command is acknowledged via sys.stderr so the
+# bidirectional channel can be verified end-to-end without real peripherals.
 
 import utime
 import sys
@@ -14,6 +16,10 @@ import messages as m
 
 HEARTBEAT_INTERVAL_MS = 2000
 FLUSH_INTERVAL_MS = 10
+
+
+def _log(msg):
+    sys.stderr.write(msg + "\n")
 
 
 def main() -> None:
@@ -38,9 +44,27 @@ def main() -> None:
 
         cmd = channel.read_command()
         if cmd is not None:
-            if cmd["type"] == "heartbeat_request":
+            cmd_type = cmd["type"]
+            payload = cmd["payload"]
+            if cmd_type == "heartbeat_request":
                 uptime = utime.ticks_diff(utime.ticks_ms(), boot_ms)
                 queue.push(m.heartbeat(uptime_ms=uptime, queue_size=queue.size()))
+            elif cmd_type == "led_set":
+                # TODO: drive GPIO when LED hardware is wired
+                _log("led_set {led_id}={state}".format(
+                    led_id=payload.get("led_id", ""),
+                    state=payload.get("state", ""),
+                ))
+            elif cmd_type == "buzzer_beep":
+                # TODO: drive PWM when buzzer hardware is wired
+                _log("buzzer_beep pattern={pattern}".format(
+                    pattern=payload.get("pattern", ""),
+                ))
+            elif cmd_type == "state_transition":
+                # TODO: update local state machine when implemented
+                _log("state_transition new_state={new_state}".format(
+                    new_state=payload.get("new_state", ""),
+                ))
 
         utime.sleep_ms(FLUSH_INTERVAL_MS)
 

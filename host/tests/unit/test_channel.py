@@ -160,31 +160,35 @@ class TestFrameSizeLimit:
         return channel, dispatcher
 
     def test_oversized_frame_without_newline_is_discarded(self):
-        """A frame of exactly _MAX_FRAME_BYTES with no trailing newline must be dropped."""
+        """_read_loop() must not dispatch a frame that fills readline()'s buffer (no newline)."""
         from host.communication.channel import _MAX_FRAME_BYTES
         channel, dispatcher = self._make_channel()
         received = []
         dispatcher.register("t0_detected", lambda m: received.append(m))
 
-        # Simulate readline() returning a full buffer with no newline
-        oversized = b"x" * _MAX_FRAME_BYTES
         mock_serial = MagicMock()
         mock_serial.is_open = True
-        mock_serial.readline.side_effect = [oversized, b""]  # then empty to break loop
+
+        # First call: oversized frame (no trailing newline — fills the buffer exactly)
+        # Second call: stop the loop
+        oversized = b"x" * _MAX_FRAME_BYTES
+        call_n = {"n": 0}
+        def readline_side_effect(size):
+            call_n["n"] += 1
+            if call_n["n"] == 1:
+                return oversized
+            channel._running = False
+            return b""
+        mock_serial.readline.side_effect = readline_side_effect
+
         channel._serial = mock_serial
         channel._running = True
+        channel._last_rx_time = 0.0
 
-        # Run one iteration of _read_loop manually
-        import serial as _serial_mod
-        with patch.object(channel, "_running", new_callable=lambda: property(
-            lambda self: getattr(self, "_running_val", True),
-            lambda self, v: setattr(self, "_running_val", v),
-        )):
-            pass  # just verify dispatch not called
+        with patch("time.monotonic", return_value=0.0):
+            channel._read_loop()
 
-        # Direct test: dispatch must not be called for oversized frame
-        channel._dispatcher.dispatch(oversized)  # dispatcher will reject it (no valid JSON)
-        assert received == []
+        assert received == [], "dispatch must not be called for oversized frame"
 
     def test_readline_called_with_max_frame_size(self):
         """readline() must be called with _MAX_FRAME_BYTES as the size argument."""

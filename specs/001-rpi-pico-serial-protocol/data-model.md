@@ -15,7 +15,7 @@ Toda unidad de comunicación en el canal. Transmitida como JSON + `\n`.
 |----------------|---------|-----------|-------------|
 | `type`         | string  | ✅        | Identificador del tipo de mensaje; puede ser conocido o desconocido para compatibilidad futura |
 | `version`      | string  | ✅        | Versión semver del protocolo (e.g. `"1.0.0"`) |
-| `timestamp_ms` | integer | ✅        | Milisegundos desde boot del Pico (monotónico) |
+| `timestamp_ms` | integer | ✅        | Reloj monotónico en ms del emisor. Pico→RPi: ms desde boot del Pico (`utime.ticks_ms()`). RPi→Pico: ms desde inicio del proceso host (`time.monotonic()`). Las dos bases de tiempo son independientes; no comparar entre direcciones. |
 | `payload`      | object  | ✅        | Datos específicos del tipo de mensaje |
 
 **Invariantes**:

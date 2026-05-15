@@ -100,6 +100,8 @@ class SerialChannel:
         if "version" not in message:
             message = {**message, "version": PROTOCOL_VERSION}
         if "timestamp_ms" not in message:
+            # Host uses monotonic process time; Pico uses utime.ticks_ms() (boot-relative).
+            # These clocks are independent — do not compare timestamps across directions.
             message = {**message, "timestamp_ms": int(time.monotonic() * 1000)}
         if "payload" not in message:
             message = {**message, "payload": {}}

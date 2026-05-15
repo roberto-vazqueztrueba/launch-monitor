@@ -110,7 +110,7 @@ class EventDispatcher:
             return
 
         ts = msg["timestamp_ms"]
-        if not isinstance(ts, int) or ts < 0:
+        if isinstance(ts, bool) or not isinstance(ts, int) or ts < 0:
             logger.warning("Field 'timestamp_ms' must be a non-negative integer — discarded: %r", ts)
             return
 

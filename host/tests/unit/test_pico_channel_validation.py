@@ -122,6 +122,12 @@ class TestPicoChannelValidation:
     def test_rejects_float_timestamp(self):
         assert _parse({**VALID_CMD, "timestamp_ms": 1.5}) is None
 
+    def test_rejects_bool_timestamp_true(self):
+        assert _parse({**VALID_CMD, "timestamp_ms": True}) is None
+
+    def test_rejects_bool_timestamp_false(self):
+        assert _parse({**VALID_CMD, "timestamp_ms": False}) is None
+
     def test_rejects_string_timestamp(self):
         assert _parse({**VALID_CMD, "timestamp_ms": "now"}) is None
 

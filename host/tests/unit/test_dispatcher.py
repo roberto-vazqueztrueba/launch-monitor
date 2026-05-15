@@ -161,6 +161,20 @@ class TestEventDispatcher:
         dispatcher.dispatch(_make_raw({**VALID_MSG, "timestamp_ms": 1.5}))
         assert called == []
 
+    def test_discards_bool_timestamp_true(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("t0_detected", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "timestamp_ms": True}))
+        assert called == []
+
+    def test_discards_bool_timestamp_false(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("t0_detected", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "timestamp_ms": False}))
+        assert called == []
+
     def test_discards_list_payload(self):
         dispatcher = EventDispatcher()
         called = []

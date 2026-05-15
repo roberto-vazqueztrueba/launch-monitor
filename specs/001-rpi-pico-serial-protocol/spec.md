@@ -23,7 +23,7 @@ botón físico), y verificar que la RPi recibe y decodifica el mensaje JSON corr
 
 1. **Given** Pico y RPi conectados por USB-serial, **When** el Pico detecta `t0`, **Then** la RPi recibe dentro de 50 ms un mensaje JSON con tipo `t0_detected` y timestamp válido.
 2. **Given** canal activo, **When** el Pico envía una lectura de BME280, **Then** la RPi recibe temperatura, presión y humedad como floats correctamente tipados.
-3. **Given** canal activo, **When** el Pico envía una pulsación de botón, **Then** la RPi recibe `input_event` con el identificador correcto del botón.
+3. **Given** canal activo, **When** el Pico envía una pulsación de botón, **Then** la RPi recibe `input_button` con el identificador correcto del botón.
 
 ---
 
@@ -42,7 +42,7 @@ LED correspondiente se enciende en el Pico.
 
 1. **Given** canal activo, **When** la RPi envía `led_set {id: "status", state: "on"}`, **Then** el Pico enciende el LED de estado en menos de 100 ms.
 2. **Given** canal activo, **When** la RPi envía `buzzer_beep {pattern: "short"}`, **Then** el Pico emite el patrón sonoro correspondiente.
-3. **Given** canal activo, **When** la RPi envía `state_transition {new_state: "ARMED"}`, **Then** el Pico actualiza su estado interno y confirma con un ACK.
+3. **Given** canal activo, **When** la RPi envía `state_transition {new_state: "ARMED"}`, **Then** el Pico actualiza su estado interno. *(El ACK explícito queda fuera del alcance de v1.)*
 
 ---
 
@@ -81,7 +81,7 @@ descarta, registra el error en el log y sigue procesando mensajes válidos poste
 - **FR-003**: El canal DEBE soportar comunicación bidireccional: Pico→RPi (eventos de sensor/input) y RPi→Pico (comandos de control).
 - **FR-004**: La RPi DEBE procesar mensajes entrantes de forma no bloqueante (nunca parar el hilo principal).
 - **FR-005**: El Pico DEBE enviar un mensaje `heartbeat` cada 2 segundos cuando no haya otros eventos, para confirmar que el canal está vivo.
-- **FR-006**: La RPi DEBE detectar ausencia de mensajes durante más de 5 segundos y emitir una alerta de canal inactivo.
+- **FR-006**: La RPi DEBE detectar ausencia de mensajes durante más de 5 segundos, emitir un `heartbeat_request` al Pico y registrar una alerta de canal inactivo.
 - **FR-007**: Mensajes JSON malformados o con campos obligatorios ausentes DEBEN descartarse con registro en log; NO DEBEN propagar excepciones.
 - **FR-008**: El protocolo DEBE incluir un campo `version` para permitir negociación de versión y compatibilidad futura.
 - **FR-009**: La RPi DEBE exponer una interfaz programática (callable) para suscribirse a tipos de evento específicos, sin conocer detalles del canal físico.
@@ -103,13 +103,13 @@ descarta, registra el error en el log y sigue procesando mensajes válidos poste
 
 **RPi → Pico (comandos)**:
 
-| `type`             | Descripción                              |
-|--------------------|------------------------------------------|
-| `led_set`          | Control de estado de un LED              |
-| `buzzer_beep`      | Activar patrón de buzzer                 |
-| `state_transition` | Notificar nuevo estado del sistema       |
-| `heartbeat_ack`    | Respuesta a heartbeat del Pico           |
-| `heartbeat_request` | Solicitar heartbeat inmediato al Pico   |
+| `type`              | Descripción                              |
+|---------------------|------------------------------------------|
+| `led_set`           | Control de estado de un LED              |
+| `buzzer_beep`       | Activar patrón de buzzer                 |
+| `state_transition`  | Notificar nuevo estado del sistema       |
+| `heartbeat_ack`     | Respuesta a heartbeat del Pico           |
+| `heartbeat_request` | Solicitar heartbeat inmediato al Pico    |
 
 ### Key Entities
 

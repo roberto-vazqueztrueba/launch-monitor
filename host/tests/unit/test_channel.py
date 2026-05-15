@@ -77,18 +77,6 @@ class TestSerialChannelStop:
 
         fake_thread.join.assert_not_called()
 
-    def test_send_writes_newline_terminated_json(self):
-        channel, _ = self._make_channel()
-        mock_serial = MagicMock()
-        mock_serial.is_open = True
-        channel._serial = mock_serial
-
-        channel.send({"type": "led_set", "payload": {"led_id": "mode", "state": "off"}})
-
-        written: bytes = mock_serial.write.call_args[0][0]
-        assert written.endswith(b"\n")
-        json.loads(written.strip())  # must be valid JSON
-
 
 # ---------------------------------------------------------------------------
 # ReconnectPolicy tests

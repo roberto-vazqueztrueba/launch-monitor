@@ -207,6 +207,14 @@ class TestPicoCommandPayloadValidation:
         msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "status", "state": "on"}}
         assert _parse(msg) is not None
 
+    def test_led_set_blink_slow_valid(self):
+        msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "status", "state": "blink_slow"}}
+        assert _parse(msg) is not None
+
+    def test_led_set_blink_fast_valid(self):
+        msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "status", "state": "blink_fast"}}
+        assert _parse(msg) is not None
+
     def test_led_set_invalid_state(self):
         msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "status", "state": "blink"}}
         assert _parse(msg) is None

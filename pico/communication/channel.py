@@ -134,7 +134,7 @@ class UartChannel:
         if cmd_type == "led_set":
             if not isinstance(payload.get("led_id"), str) or not payload.get("led_id"):
                 return None
-            if payload.get("state") not in ("on", "off"):
+            if payload.get("state") not in ("on", "off", "blink_slow", "blink_fast"):
                 return None
         elif cmd_type == "buzzer_beep":
             if not isinstance(payload.get("pattern"), str) or not payload.get("pattern"):

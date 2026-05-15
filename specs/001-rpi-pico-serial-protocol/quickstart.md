@@ -25,10 +25,18 @@ El número de `/dev/ttyACMx` varía entre reinicios. Creamos un symlink permanen
 ```bash
 # En la RPi, como root:
 cat > /etc/udev/rules.d/99-pico.rules << 'EOF'
-SUBSYSTEM=="tty", ATTRS{idVendor}=="2e8a", ATTRS{idProduct}=="0005", SYMLINK+="pico", MODE="0666"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2e8a", ATTRS{idProduct}=="0005", SYMLINK+="pico", GROUP="dialout", MODE="0660"
 EOF
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
+
+> **Opción recomendada (más segura)**: `GROUP="dialout", MODE="0660"` — solo los usuarios del
+> grupo `dialout` pueden acceder al dispositivo. Añade tu usuario al grupo:
+> `sudo usermod -aG dialout $USER` (requiere cerrar sesión y volver a entrar).
+>
+> **Opción alternativa (más cómoda en desarrollo)**: sustituye por `MODE="0666"` para dar acceso
+> a todos los usuarios locales sin necesidad de gestionar grupos. No recomendado en producción
+> porque cualquier proceso local puede enviar comandos al firmware.
 
 Después de reconectar el Pico, el dispositivo estará disponible como `/dev/pico`.
 

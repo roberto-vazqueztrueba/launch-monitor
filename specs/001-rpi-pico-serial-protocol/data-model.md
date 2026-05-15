@@ -229,6 +229,20 @@ Sin campos en payload — es una confirmación de que el host sigue activo.
 
 ---
 
+#### `heartbeat_request`
+```json
+{
+  "type": "heartbeat_request",
+  "version": "1.0.0",
+  "timestamp_ms": 0,
+  "payload": {}
+}
+```
+Sin campos en payload — solicita al Pico que envíe un `heartbeat` inmediato sin esperar al ciclo
+periódico. El Pico DEBE responder con un `heartbeat` en el siguiente ciclo de escritura.
+
+---
+
 ## Reglas de validación del canal
 
 1. Un mensaje DEBE descartarse (con log) si:

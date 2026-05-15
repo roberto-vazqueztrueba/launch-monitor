@@ -16,5 +16,13 @@ dev = [
     "pytest>=8.0",
 ]
 
+[tool.setuptools.packages.find]
+# Search one level up so setuptools discovers the `host` package and its
+# `host.communication` sub-package.  Without this, setuptools roots its
+# search inside host/ and installs `communication` as a top-level package,
+# breaking all `host.communication.*` imports.
+where = [".."]
+include = ["host*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

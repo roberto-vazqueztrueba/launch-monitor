@@ -86,7 +86,7 @@ lo descarta, registra en log y sigue procesando mensajes válidos.
 ### Error handling (ya cubierto en fases anteriores)
 
 - [x] T018 [US3] Verificar que `EventDispatcher.dispatch()` descarta JSON malformado con log WARNING (cubierto en T013)
-- [x] T019 [US3] Verificar que `SerialChannel._read_loop()` emite `heartbeat_request` si no hay datos en > 5 s (lógica en `channel.py` línea `_HEARTBEAT_TIMEOUT_S`)
+- [x] T019 [US3] Verificar que `SerialChannel._read_loop()` emite `heartbeat_request` si no hay datos en > `policy.heartbeat_timeout_s` segundos (configurable vía `ReconnectPolicy`; implementado en `host/communication/channel.py` `_read_loop()`)
 - [x] T020 [US3] Verificar que `SerialChannel._run()` reintenta la apertura del puerto cada 500 ms tras `SerialException` (lógica en `channel.py` `_open_port()`)
 
 ### Pico verification
@@ -125,4 +125,4 @@ Las tareas marcadas `[P]` pueden ejecutarse en paralelo dentro de su fase:
 MVP = Phase 1 + Phase 2 + Phase 3 (US1 completo): canal unidireccional Pico→RPi operativo.
 Phase 4 añade el canal de bajada RPi→Pico. Phase 5 garantiza robustez.
 
-**Estado actual**: MVP + Phase 4 + Phase 5 implementados. Pendiente: verificación en hardware real (T023).
+**Estado actual**: Implementación completada y verificada en hardware ✅

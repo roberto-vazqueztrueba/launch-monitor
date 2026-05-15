@@ -155,6 +155,18 @@ class TestInputEncoder:
         with pytest.raises(ValueError):
             m.input_encoder("rotate", steps=1.5)
 
+    def test_direction_on_click_raises(self):
+        with pytest.raises(ValueError):
+            m.input_encoder("click", direction="cw")
+
+    def test_steps_on_click_raises(self):
+        with pytest.raises(ValueError):
+            m.input_encoder("click", steps=2)
+
+    def test_direction_on_long_press_raises(self):
+        with pytest.raises(ValueError):
+            m.input_encoder("long_press", direction="ccw")
+
 
 # ---------------------------------------------------------------------------
 # input_nfc

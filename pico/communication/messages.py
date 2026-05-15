@@ -105,6 +105,10 @@ def input_encoder(action, direction=None, steps=None):
     """
     if action not in _ENCODER_ACTIONS:
         raise ValueError("action must be one of: " + ", ".join(_ENCODER_ACTIONS))
+    if direction is not None and action != "rotate":
+        raise ValueError("direction is only valid when action == 'rotate'")
+    if steps is not None and action != "rotate":
+        raise ValueError("steps is only valid when action == 'rotate'")
     if direction is not None and direction not in _ENCODER_DIRECTIONS:
         raise ValueError("direction must be one of: " + ", ".join(_ENCODER_DIRECTIONS))
     if steps is not None and (not isinstance(steps, int) or steps < 1):

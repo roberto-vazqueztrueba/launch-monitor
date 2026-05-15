@@ -178,3 +178,69 @@ class TestPicoChannelValidation:
 
         assert result is None
         assert ch._rx_buf == b""  # buffer reset after discard
+
+
+class TestPicoCommandPayloadValidation:
+    """Per-command payload schema validation for known RPi→Pico command types."""
+
+    # --- led_set ---
+
+    def test_led_set_valid(self):
+        msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "status", "state": "on"}}
+        assert _parse(msg) is not None
+
+    def test_led_set_invalid_state(self):
+        msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "status", "state": "blink"}}
+        assert _parse(msg) is None
+
+    def test_led_set_missing_led_id(self):
+        msg = {**VALID_CMD, "type": "led_set", "payload": {"state": "on"}}
+        assert _parse(msg) is None
+
+    def test_led_set_empty_led_id(self):
+        msg = {**VALID_CMD, "type": "led_set", "payload": {"led_id": "", "state": "off"}}
+        assert _parse(msg) is None
+
+    # --- buzzer_beep ---
+
+    def test_buzzer_beep_valid(self):
+        msg = {**VALID_CMD, "type": "buzzer_beep", "payload": {"pattern": "short"}}
+        assert _parse(msg) is not None
+
+    def test_buzzer_beep_missing_pattern(self):
+        msg = {**VALID_CMD, "type": "buzzer_beep", "payload": {}}
+        assert _parse(msg) is None
+
+    def test_buzzer_beep_empty_pattern(self):
+        msg = {**VALID_CMD, "type": "buzzer_beep", "payload": {"pattern": ""}}
+        assert _parse(msg) is None
+
+    # --- state_transition ---
+
+    def test_state_transition_valid(self):
+        msg = {**VALID_CMD, "type": "state_transition", "payload": {"new_state": "ARMED"}}
+        assert _parse(msg) is not None
+
+    def test_state_transition_missing_new_state(self):
+        msg = {**VALID_CMD, "type": "state_transition", "payload": {}}
+        assert _parse(msg) is None
+
+    def test_state_transition_empty_new_state(self):
+        msg = {**VALID_CMD, "type": "state_transition", "payload": {"new_state": ""}}
+        assert _parse(msg) is None
+
+    # --- heartbeat_ack / heartbeat_request — empty payload allowed ---
+
+    def test_heartbeat_ack_valid(self):
+        msg = {**VALID_CMD, "type": "heartbeat_ack", "payload": {}}
+        assert _parse(msg) is not None
+
+    def test_heartbeat_request_valid(self):
+        msg = {**VALID_CMD, "type": "heartbeat_request", "payload": {}}
+        assert _parse(msg) is not None
+
+    # --- unknown type passes through (forward-compatible) ---
+
+    def test_unknown_type_passes_through(self):
+        msg = {**VALID_CMD, "type": "future_cmd", "payload": {"x": 1}}
+        assert _parse(msg) is not None

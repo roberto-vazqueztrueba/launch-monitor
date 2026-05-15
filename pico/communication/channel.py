@@ -127,4 +127,19 @@ class UartChannel:
             return None
         if not parts[1].isdigit() or not parts[2].isdigit():
             return None
+        # Per-command payload schema validation for known RPi→Pico commands.
+        # Unknown types pass through (forward-compatible — mirrors host dispatcher policy).
+        cmd_type = msg["type"]
+        payload = msg["payload"]
+        if cmd_type == "led_set":
+            if not isinstance(payload.get("led_id"), str) or not payload.get("led_id"):
+                return None
+            if payload.get("state") not in ("on", "off"):
+                return None
+        elif cmd_type == "buzzer_beep":
+            if not isinstance(payload.get("pattern"), str) or not payload.get("pattern"):
+                return None
+        elif cmd_type == "state_transition":
+            if not isinstance(payload.get("new_state"), str) or not payload.get("new_state"):
+                return None
         return msg

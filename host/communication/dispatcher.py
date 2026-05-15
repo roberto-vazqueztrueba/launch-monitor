@@ -91,18 +91,39 @@ class EventDispatcher:
             logger.warning("Message missing required fields %s — discarded: %r", missing, msg)
             return
 
-        # Version compatibility: reject incompatible MAJOR versions
-        version = str(msg.get("version", ""))
+        # Validate field types to enforce data-model invariants
+        msg_type = msg["type"]
+        if not isinstance(msg_type, str) or not msg_type:
+            logger.warning("Field 'type' must be a non-empty string — discarded: %r", msg_type)
+            return
+
+        version = msg["version"]
+        if not isinstance(version, str):
+            logger.warning("Field 'version' must be a string — discarded: %r", version)
+            return
         parts = version.split(".")
-        if not parts or parts[0] != _PROTOCOL_MAJOR:
+        if len(parts) < 2 or not all(p.isdigit() for p in parts):
+            logger.warning("Field 'version' is not a valid semver string — discarded: %r", version)
+            return
+
+        ts = msg["timestamp_ms"]
+        if not isinstance(ts, int) or ts < 0:
+            logger.warning("Field 'timestamp_ms' must be a non-negative integer — discarded: %r", ts)
+            return
+
+        payload = msg["payload"]
+        if not isinstance(payload, dict):
+            logger.warning("Field 'payload' must be a JSON object — discarded: %r", payload)
+            return
+
+        # Version compatibility: reject incompatible MAJOR versions
+        if parts[0] != _PROTOCOL_MAJOR:
             logger.error(
                 "Incompatible protocol MAJOR version '%s' (expected %s) — discarded",
                 version,
                 _PROTOCOL_MAJOR,
             )
             return
-
-        msg_type: str = msg["type"]
         handlers = self._handlers.get(msg_type, [])
 
         if not handlers:

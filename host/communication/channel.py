@@ -147,12 +147,6 @@ class SerialChannel:
 
     def _read_loop(self) -> None:
         """Read newline-delimited frames and dispatch them."""
-        # Dispatch the pre-synced frame saved during _open_port if present
-        pending = getattr(self, "_pending_frame", None)
-        if pending:
-            self._dispatcher.dispatch(pending)
-            self._pending_frame = None
-
         while self._running:
             with self._lock:
                 ser = self._serial

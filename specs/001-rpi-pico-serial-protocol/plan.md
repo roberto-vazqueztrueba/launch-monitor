@@ -18,7 +18,7 @@ Decisión técnica clave: **pyserial** en el host (lectura no bloqueante en hilo
 **Language/Version (RPi host)**: Python 3.11+  
 **Language/Version (Pico firmware)**: MicroPython 1.22+ (RP2040)  
 **Primary Dependencies (host)**: `pyserial` (lectura serie), stdlib `threading` + `queue`  
-**Primary Dependencies (Pico)**: stdlib MicroPython (`machine.UART`, `ujson`, `uqueue`-custom)  
+**Primary Dependencies (Pico)**: stdlib MicroPython (`sys.stdout` USB CDC, `ujson`, `collections.deque`)  
 **Storage**: N/A (este feature no persiste datos; eso corresponde al feature de sesiones)  
 **Testing**: `pytest` + `unittest.mock` en el host para simular el canal; scripts de verificación manual en el Pico  
 **Target Platform**: Raspberry Pi OS (Linux ARM) + Raspberry Pi Pico (RP2040, MicroPython)  

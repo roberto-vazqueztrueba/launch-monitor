@@ -128,6 +128,7 @@ class SerialChannel:
                 time.sleep(self._policy.interval_s)
 
     def _open_port(self) -> None:
+        attempts = 0
         while self._running:
             try:
                 ser = serial.Serial(
@@ -144,6 +145,15 @@ class SerialChannel:
                 logger.info("Port %s opened", self._port)
                 return
             except serial.SerialException as exc:
+                attempts += 1
+                max_a = self._policy.max_attempts
+                if max_a > 0 and attempts >= max_a:
+                    logger.error(
+                        "Cannot open %s after %d attempt(s): %s — giving up",
+                        self._port, attempts, exc,
+                    )
+                    self._running = False
+                    return
                 logger.debug("Cannot open %s: %s — retrying in %.1f s", self._port, exc, self._policy.interval_s)
                 time.sleep(self._policy.interval_s)
 

@@ -250,6 +250,15 @@ class TestPicoCommandPayloadValidation:
         msg = {**VALID_CMD, "type": "buzzer_beep", "payload": {"pattern": ""}}
         assert _parse(msg) is None
 
+    def test_buzzer_beep_invalid_pattern(self):
+        msg = {**VALID_CMD, "type": "buzzer_beep", "payload": {"pattern": "triple"}}
+        assert _parse(msg) is None
+
+    def test_buzzer_beep_all_valid_patterns(self):
+        for pattern in ("short", "long", "double", "error"):
+            msg = {**VALID_CMD, "type": "buzzer_beep", "payload": {"pattern": pattern}}
+            assert _parse(msg) is not None, pattern
+
     # --- state_transition ---
 
     def test_state_transition_valid(self):
@@ -263,6 +272,17 @@ class TestPicoCommandPayloadValidation:
     def test_state_transition_empty_new_state(self):
         msg = {**VALID_CMD, "type": "state_transition", "payload": {"new_state": ""}}
         assert _parse(msg) is None
+
+    def test_state_transition_invalid_new_state(self):
+        msg = {**VALID_CMD, "type": "state_transition", "payload": {"new_state": "FLYING"}}
+        assert _parse(msg) is None
+
+    def test_state_transition_all_valid_states(self):
+        for state in ("BOOTING", "SELF_TEST", "WAITING_PROFILE", "WAITING_CLUB",
+                      "READY", "ARMED", "IMPACT_DETECTED", "PROCESSING",
+                      "RESULTS", "DIAGNOSTICS", "ERROR"):
+            msg = {**VALID_CMD, "type": "state_transition", "payload": {"new_state": state}}
+            assert _parse(msg) is not None, state
 
     # --- heartbeat_ack / heartbeat_request — empty payload allowed ---
 

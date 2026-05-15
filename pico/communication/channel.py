@@ -146,11 +146,16 @@ class UartChannel:
                 sys.stderr.write("WARN read_command: invalid led_set.state — discarded\n")
                 return None
         elif cmd_type == "buzzer_beep":
-            if not isinstance(payload.get("pattern"), str) or not payload.get("pattern"):
+            if payload.get("pattern") not in ("short", "long", "double", "error"):
                 sys.stderr.write("WARN read_command: invalid buzzer_beep.pattern — discarded\n")
                 return None
         elif cmd_type == "state_transition":
-            if not isinstance(payload.get("new_state"), str) or not payload.get("new_state"):
+            _VALID_STATES = (
+                "BOOTING", "SELF_TEST", "WAITING_PROFILE", "WAITING_CLUB",
+                "READY", "ARMED", "IMPACT_DETECTED", "PROCESSING",
+                "RESULTS", "DIAGNOSTICS", "ERROR",
+            )
+            if payload.get("new_state") not in _VALID_STATES:
                 sys.stderr.write("WARN read_command: invalid state_transition.new_state — discarded\n")
                 return None
         return msg

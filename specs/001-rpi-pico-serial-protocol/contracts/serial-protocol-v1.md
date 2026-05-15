@@ -52,6 +52,7 @@ Todos los campos del envelope son **obligatorios**. Un mensaje sin cualquiera de
 | `buzzer_beep`       | Activar buzzer | `pattern: str` |
 | `state_transition`  | Notificar estado del sistema | `new_state: str` |
 | `heartbeat_ack`     | Confirmar heartbeat recibido | `{}` (vacío) |
+| `heartbeat_request` | Solicitar heartbeat inmediato al Pico | `{}` (vacío) |
 
 ---
 

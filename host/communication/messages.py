@@ -81,3 +81,13 @@ def make_state_transition(new_state: str) -> dict:
 def make_heartbeat_ack() -> dict:
     """Build a ``heartbeat_ack`` command."""
     return _envelope("heartbeat_ack", {})
+
+
+def make_heartbeat_request() -> dict:
+    """Build a ``heartbeat_request`` command.
+
+    Sent by the host watchdog when no data has been received for
+    :attr:`ReconnectPolicy.heartbeat_timeout_s` seconds, to probe
+    whether the Pico is still alive.
+    """
+    return _envelope("heartbeat_request", {})

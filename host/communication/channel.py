@@ -167,8 +167,13 @@ class SerialChannel:
 
             # Check heartbeat timeout
             if time.monotonic() - self._last_rx_time > self._policy.heartbeat_timeout_s:
-                logger.warning("No data from Pico for %.0f s — channel silent", self._policy.heartbeat_timeout_s)
+                logger.warning("No data from Pico for %.0f s — sending heartbeat_request", self._policy.heartbeat_timeout_s)
                 self._last_rx_time = time.monotonic()
+                try:
+                    from .messages import make_heartbeat_request
+                    self.send(make_heartbeat_request())
+                except Exception as exc:
+                    logger.debug("heartbeat_request send failed: %s", exc)
 
             try:
                 raw = ser.readline()

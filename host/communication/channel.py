@@ -151,12 +151,13 @@ class SerialChannel:
                     timeout=self._timeout,
                     write_timeout=self._timeout,
                 )
-                # Discard at most one partial frame that may be in-flight when
-                # the port opens.  reset_input_buffer() would silently drop all
-                # already-buffered complete events (including t0_detected); instead
-                # read up to one line so only the partial frame is consumed and any
-                # complete newline-terminated messages queued before it are preserved.
-                ser.readline(_MAX_FRAME_BYTES)
+                # Do NOT pre-drain the buffer here: any readline() call would
+                # either block for a full serial timeout when no bytes are
+                # present, or discard a complete buffered event (e.g. a Pico
+                # startup burst or an early t0_detected).  Partial frames are
+                # already handled by _read_loop: readline() returns whatever is
+                # available at timeout expiry, which then fails JSON parsing and
+                # is discarded harmlessly.
                 with self._lock:
                     self._serial = ser
                 self._last_rx_time = time.monotonic()

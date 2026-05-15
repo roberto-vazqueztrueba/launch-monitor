@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-rpi-pico-serial-protocol`
 **Created**: 2026-05-05
-**Status**: Draft
+**Status**: Implemented
 **Input**: Protocolo de comunicación serie entre Raspberry Pi y Raspberry Pi Pico para intercambio de eventos JSON
 
 ## User Scenarios & Testing *(mandatory)*
@@ -109,6 +109,7 @@ descarta, registra el error en el log y sigue procesando mensajes válidos poste
 | `buzzer_beep`      | Activar patrón de buzzer                 |
 | `state_transition` | Notificar nuevo estado del sistema       |
 | `heartbeat_ack`    | Respuesta a heartbeat del Pico           |
+| `heartbeat_request` | Solicitar heartbeat inmediato al Pico   |
 
 ### Key Entities
 

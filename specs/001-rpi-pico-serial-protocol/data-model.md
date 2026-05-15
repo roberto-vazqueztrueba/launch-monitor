@@ -13,16 +13,20 @@ Toda unidad de comunicación en el canal. Transmitida como JSON + `\n`.
 
 | Campo          | Tipo    | Requerido | Descripción |
 |----------------|---------|-----------|-------------|
-| `type`         | string  | ✅        | Identificador del tipo de mensaje (ver catálogo) |
+| `type`         | string  | ✅        | Identificador del tipo de mensaje; puede ser conocido o desconocido para compatibilidad futura |
 | `version`      | string  | ✅        | Versión semver del protocolo (e.g. `"1.0.0"`) |
 | `timestamp_ms` | integer | ✅        | Milisegundos desde boot del Pico (monotónico) |
 | `payload`      | object  | ✅        | Datos específicos del tipo de mensaje |
 
 **Invariantes**:
-- `type` DEBE ser una cadena no vacía del catálogo conocido
+- `type` DEBE ser una cadena no vacía
 - `version` DEBE tener formato `MAJOR.MINOR.PATCH`
 - `timestamp_ms` DEBE ser ≥ 0
 - `payload` DEBE ser un objeto JSON (nunca null, nunca array)
+
+**Compatibilidad hacia adelante**:
+- Mensajes con `type` desconocido DEBEN aceptarse a nivel de transporte/envelope si cumplen los invariantes anteriores.
+- La validación estricta del contenido de `payload` aplica solo a los `type` conocidos documentados en este catálogo.
 
 ---
 

@@ -41,19 +41,23 @@ ls /dev/pico
 
 ---
 
-## Estructura de archivos a crear
+## Estructura de archivos
 
 ```
 host/
 └── communication/
+    ├── __init__.py
     ├── channel.py      # SerialChannel
     ├── dispatcher.py   # EventDispatcher
-    └── messages.py     # Dataclasses de mensajes
+    ├── messages.py     # Factorías de comandos (make_led_set, etc.)
+    └── reconnect.py    # ReconnectPolicy
 
 pico/
+├── main.py             # Entry point de producción
 └── communication/
-    ├── channel.py      # UartChannel (envío)
-    └── event_queue.py  # Cola FIFO
+    ├── channel.py      # UartChannel (envío + lectura de comandos)
+    ├── event_queue.py  # Cola FIFO
+    └── messages.py     # Constructores de eventos
 ```
 
 ---
@@ -63,9 +67,10 @@ pico/
 ```python
 from host.communication.channel import SerialChannel
 from host.communication.dispatcher import EventDispatcher
+from host.communication.messages import make_led_set
 
 dispatcher = EventDispatcher()
-channel = SerialChannel(port="/dev/pico", dispatcher=dispatcher)  # default
+channel = SerialChannel(dispatcher=dispatcher)  # port por defecto: /dev/pico
 
 # Suscribirse a un tipo de evento
 @dispatcher.on("t0_detected")
@@ -75,8 +80,8 @@ def handle_t0(msg):
 # Iniciar canal (no bloqueante)
 channel.start()
 
-# Enviar comando al Pico
-channel.send({"type": "led_set", "payload": {"led_id": "status", "state": "on"}})
+# Enviar comando al Pico usando la factoría de mensajes
+channel.send(make_led_set("status", "on"))
 ```
 
 ---
@@ -84,17 +89,19 @@ channel.send({"type": "led_set", "payload": {"led_id": "status", "state": "on"}}
 ## Uso básico — Pico (firmware MicroPython)
 
 ```python
-from communication.channel import UartChannel
-from communication.event_queue import EventQueue
+import sys
+if "communication" not in sys.path:
+    sys.path.append("communication")
+
+from channel import UartChannel
+from event_queue import EventQueue
+import messages as m
 
 queue = EventQueue(maxlen=20)
 channel = UartChannel(queue=queue)
 
 # Emitir evento t0
-queue.push({
-    "type": "t0_detected",
-    "payload": {"confidence": 0.95}
-})
+queue.push(m.t0_detected(confidence=0.95))
 channel.flush()  # Envía todos los mensajes pendientes al host
 ```
 

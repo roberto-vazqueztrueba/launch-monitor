@@ -133,11 +133,9 @@ class SerialChannel:
                     baudrate=self._baudrate,
                     timeout=self._timeout,
                 )
-                # Discard lines until we receive one that parses as valid JSON.
-                # This guarantees we start processing on a complete frame boundary
-                # regardless of when the port was opened relative to Pico writes.
+                # Discard at most one partial frame that may be in-flight when
+                # the port opens. Subsequent messages will be complete lines.
                 ser.reset_input_buffer()
-                self._sync_to_valid_frame(ser)
                 with self._lock:
                     self._serial = ser
                 self._last_rx_time = time.monotonic()
@@ -146,21 +144,6 @@ class SerialChannel:
             except serial.SerialException as exc:
                 logger.debug("Cannot open %s: %s — retrying in %.1f s", self._port, exc, _RECONNECT_INTERVAL_S)
                 time.sleep(_RECONNECT_INTERVAL_S)
-
-    def _sync_to_valid_frame(self, ser: serial.Serial) -> None:
-        """Discard lines until one parses as valid JSON. Max 10 attempts."""
-        for _ in range(10):
-            raw = ser.readline()
-            if not raw:
-                continue
-            try:
-                json.loads(raw.decode("utf-8"))
-                # Valid JSON — push it back by pre-seeding the dispatcher after assignment
-                self._pending_frame = raw
-                return
-            except Exception:
-                logger.debug("Sync: discarding partial frame %r", raw[:60])
-        self._pending_frame = None
 
     def _read_loop(self) -> None:
         """Read newline-delimited frames and dispatch them."""

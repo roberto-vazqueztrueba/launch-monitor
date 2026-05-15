@@ -9,7 +9,7 @@
 
 **RPi (host)**:
 ```bash
-pip install pyserial
+pip install pyserial pytest
 ```
 
 **Pico (firmware)**:

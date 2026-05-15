@@ -98,8 +98,20 @@ class UartChannel:
             return None
         if not isinstance(msg, dict):
             return None
-        # Basic envelope validation
+        # Envelope field presence
         for key in ("type", "version", "timestamp_ms", "payload"):
             if key not in msg:
                 return None
+        # Type checks
+        if not isinstance(msg["type"], str) or not msg["type"]:
+            return None
+        if not isinstance(msg["payload"], dict):
+            return None
+        # Version: must be "1.x.x" (compatible major)
+        version = msg["version"]
+        if not isinstance(version, str):
+            return None
+        parts = version.split(".")
+        if len(parts) < 2 or parts[0] != "1":
+            return None
         return msg

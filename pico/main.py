@@ -1,7 +1,7 @@
 # main.py — Pico entry point
 #
-# Minimal production bootstrap: sends heartbeats every 2s and echoes
-# incoming commands.  Sensor drivers will be added in future features.
+# Minimal production bootstrap: sends heartbeats every 2s and currently
+# ignores incoming commands. Sensor drivers will be added in future features.
 
 import utime
 import sys

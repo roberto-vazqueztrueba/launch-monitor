@@ -108,26 +108,31 @@ class UartChannel:
         # Envelope field presence
         for key in ("type", "version", "timestamp_ms", "payload"):
             if key not in msg:
+                sys.stderr.write("WARN read_command: missing envelope field '" + key + "' — discarded\n")
                 return None
         # Type checks
         if not isinstance(msg["type"], str) or not msg["type"]:
+            sys.stderr.write("WARN read_command: 'type' must be a non-empty string — discarded\n")
             return None
         if not isinstance(msg["payload"], dict):
+            sys.stderr.write("WARN read_command: 'payload' must be a JSON object — discarded\n")
             return None
         # timestamp_ms must be a non-negative integer
         ts = msg["timestamp_ms"]
         if isinstance(ts, bool) or not isinstance(ts, int) or ts < 0:
+            sys.stderr.write("WARN read_command: invalid 'timestamp_ms' — discarded\n")
             return None
         # Version: must be exactly "1.x.x" with numeric components
         version = msg["version"]
         if not isinstance(version, str):
+            sys.stderr.write("WARN read_command: 'version' must be a string — discarded\n")
             return None
         parts = version.split(".")
-        if len(parts) != 3:
+        if len(parts) != 3 or not parts[1].isdigit() or not parts[2].isdigit():
+            sys.stderr.write("WARN read_command: 'version' not semver — discarded: " + version + "\n")
             return None
         if parts[0] != "1":
-            return None
-        if not parts[1].isdigit() or not parts[2].isdigit():
+            sys.stderr.write("WARN read_command: incompatible MAJOR version — discarded: " + version + "\n")
             return None
         # Per-command payload schema validation for known RPi→Pico commands.
         # Unknown types pass through (forward-compatible — mirrors host dispatcher policy).
@@ -135,13 +140,17 @@ class UartChannel:
         payload = msg["payload"]
         if cmd_type == "led_set":
             if payload.get("led_id") not in ("status", "mode", "error"):
+                sys.stderr.write("WARN read_command: invalid led_set.led_id — discarded\n")
                 return None
             if payload.get("state") not in ("on", "off", "blink_slow", "blink_fast"):
+                sys.stderr.write("WARN read_command: invalid led_set.state — discarded\n")
                 return None
         elif cmd_type == "buzzer_beep":
             if not isinstance(payload.get("pattern"), str) or not payload.get("pattern"):
+                sys.stderr.write("WARN read_command: invalid buzzer_beep.pattern — discarded\n")
                 return None
         elif cmd_type == "state_transition":
             if not isinstance(payload.get("new_state"), str) or not payload.get("new_state"):
+                sys.stderr.write("WARN read_command: invalid state_transition.new_state — discarded\n")
                 return None
         return msg

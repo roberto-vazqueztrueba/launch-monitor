@@ -78,11 +78,19 @@ class SerialChannel:
     def send(self, message: dict) -> None:
         """Serialise *message* as JSON and write it to the serial port.
 
-        Adds ``version`` if missing. Silently drops the message when the port
-        is not open.
+        Prefer the factory functions in :mod:`communication.messages`
+        (``make_led_set``, ``make_buzzer_beep``, etc.) over passing raw dicts.
+        Those functions validate enum values and produce well-formed envelopes;
+        raw dicts bypass all payload validation.
+
+        The envelope fields ``version``, ``timestamp_ms``, and ``payload`` are
+        filled in automatically when absent.  The port write is silently
+        skipped when the port is not open.
 
         Args:
-            message: Dictionary representing the full envelope.
+            message: Dictionary with at least a ``type`` key.  Use the factory
+                functions in :mod:`communication.messages` to build valid
+                outgoing commands.
 
         Raises:
             ValueError: If *message* does not contain a ``type`` key.

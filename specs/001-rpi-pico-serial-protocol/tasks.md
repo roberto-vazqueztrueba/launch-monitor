@@ -5,9 +5,9 @@
 **Generated**: 2026-05-13
 **Status**: Implementación completada y verificada en hardware ✅
 
-> **Nota**: Este archivo fue generado a posteriori. Las tareas marcadas `[x]` ya han sido
-> implementadas y verificadas con `pytest` (109/109 tests pasan). Las tareas pendientes corresponden
-> a verificación en hardware real.
+> **Nota**: Este archivo fue generado a posteriori. Todas las tareas están completadas: el código
+> pasa 109/109 tests unitarios y la verificación en hardware real (T023) fue ejecutada y marcada
+> como completada.
 
 ---
 

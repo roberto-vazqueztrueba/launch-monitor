@@ -1,8 +1,6 @@
 import json
 import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
-import threading
-import time
+from unittest.mock import MagicMock, patch
 
 
 # ---------------------------------------------------------------------------

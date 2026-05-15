@@ -107,11 +107,15 @@ class UartChannel:
             return None
         if not isinstance(msg["payload"], dict):
             return None
-        # Version: must be "1.x.x" (compatible major)
+        # Version: must be exactly "1.x.x" with numeric components
         version = msg["version"]
         if not isinstance(version, str):
             return None
         parts = version.split(".")
-        if len(parts) < 2 or parts[0] != "1":
+        if len(parts) != 3:
+            return None
+        if parts[0] != "1":
+            return None
+        if not parts[1].isdigit() or not parts[2].isdigit():
             return None
         return msg

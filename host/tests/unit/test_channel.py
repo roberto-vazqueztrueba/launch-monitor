@@ -55,6 +55,28 @@ class TestSerialChannelSend:
         # Must not raise; timeout is logged and message dropped
         channel.send({"type": "heartbeat_ack", "payload": {}})
 
+
+class TestSerialChannelStop:
+    def test_stop_from_reader_thread_does_not_join_self(self):
+        """stop() called from the reader thread must skip join() to avoid RuntimeError."""
+        import threading
+        from host.communication.dispatcher import EventDispatcher
+        from host.communication.channel import SerialChannel
+
+        dispatcher = EventDispatcher()
+        with patch("serial.Serial"):
+            channel = SerialChannel(port="/dev/pico", dispatcher=dispatcher)
+
+        # Simulate being called from the reader thread
+        fake_thread = MagicMock(spec=threading.Thread)
+        channel._thread = fake_thread
+        channel._running = True
+
+        with patch("threading.current_thread", return_value=fake_thread):
+            channel.stop()
+
+        fake_thread.join.assert_not_called()
+
     def test_send_writes_newline_terminated_json(self):
         channel, _ = self._make_channel()
         mock_serial = MagicMock()

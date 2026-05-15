@@ -69,7 +69,7 @@ class SerialChannel:
     def stop(self) -> None:
         """Stop the background reader thread and close the port."""
         self._running = False
-        if self._thread is not None:
+        if self._thread is not None and self._thread is not threading.current_thread():
             self._thread.join(timeout=3.0)
             self._thread = None
         self._close_port()

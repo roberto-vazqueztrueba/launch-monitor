@@ -115,3 +115,69 @@ class TestEventDispatcher:
 
         assert len(received["t0_detected"]) == 1
         assert len(received["heartbeat"]) == 1
+
+    # ------------------------------------------------------------------
+    # New validation: type, version, timestamp_ms, payload
+    # ------------------------------------------------------------------
+
+    def test_discards_empty_type(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "type": ""}))
+        assert called == []
+
+    def test_discards_non_string_type(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "type": 42}))
+        assert called == []
+
+    def test_discards_non_string_version(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("t0_detected", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "version": 1}))
+        assert called == []
+
+    def test_discards_non_semver_version(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("t0_detected", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "version": "1"}))
+        assert called == []
+
+    def test_discards_negative_timestamp(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("t0_detected", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "timestamp_ms": -1}))
+        assert called == []
+
+    def test_discards_non_integer_timestamp(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("t0_detected", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "timestamp_ms": 1.5}))
+        assert called == []
+
+    def test_discards_list_payload(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("t0_detected", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "payload": [1, 2, 3]}))
+        assert called == []
+
+    def test_discards_null_payload(self):
+        dispatcher = EventDispatcher()
+        called = []
+        dispatcher.register("t0_detected", lambda m: called.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "payload": None}))
+        assert called == []
+
+    def test_accepts_zero_timestamp(self):
+        dispatcher = EventDispatcher()
+        received = []
+        dispatcher.register("t0_detected", lambda m: received.append(m))
+        dispatcher.dispatch(_make_raw({**VALID_MSG, "timestamp_ms": 0}))
+        assert len(received) == 1

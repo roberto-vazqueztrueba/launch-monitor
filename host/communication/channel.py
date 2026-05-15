@@ -12,12 +12,11 @@ import serial
 
 if TYPE_CHECKING:
     from .dispatcher import EventDispatcher
+    from .reconnect import ReconnectPolicy
 
 logger = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = "1.0.0"
-_RECONNECT_INTERVAL_S = 0.5
-_HEARTBEAT_TIMEOUT_S = 5.0
 
 
 class SerialChannel:
@@ -38,11 +37,14 @@ class SerialChannel:
         port: str = "/dev/pico",
         baudrate: int = 115200,
         timeout: float = 1.0,
+        policy: "ReconnectPolicy | None" = None,
     ) -> None:
+        from .reconnect import ReconnectPolicy as _RP
         self._port = port
         self._dispatcher = dispatcher
         self._baudrate = baudrate
         self._timeout = timeout
+        self._policy = policy if policy is not None else _RP()
         self._serial: serial.Serial | None = None
         self._running = False
         self._thread: threading.Thread | None = None
@@ -121,9 +123,9 @@ class SerialChannel:
                 self._open_port()
                 self._read_loop()
             except serial.SerialException as exc:
-                logger.warning("Serial error: %s — reconnecting in %.1f s", exc, _RECONNECT_INTERVAL_S)
+                logger.warning("Serial error: %s — reconnecting in %.1f s", exc, self._policy.interval_s)
                 self._close_port()
-                time.sleep(_RECONNECT_INTERVAL_S)
+                time.sleep(self._policy.interval_s)
 
     def _open_port(self) -> None:
         while self._running:
@@ -142,8 +144,8 @@ class SerialChannel:
                 logger.info("Port %s opened", self._port)
                 return
             except serial.SerialException as exc:
-                logger.debug("Cannot open %s: %s — retrying in %.1f s", self._port, exc, _RECONNECT_INTERVAL_S)
-                time.sleep(_RECONNECT_INTERVAL_S)
+                logger.debug("Cannot open %s: %s — retrying in %.1f s", self._port, exc, self._policy.interval_s)
+                time.sleep(self._policy.interval_s)
 
     def _read_loop(self) -> None:
         """Read newline-delimited frames and dispatch them."""
@@ -154,8 +156,8 @@ class SerialChannel:
                 break
 
             # Check heartbeat timeout
-            if time.monotonic() - self._last_rx_time > _HEARTBEAT_TIMEOUT_S:
-                logger.warning("No data from Pico for %.0f s — channel silent", _HEARTBEAT_TIMEOUT_S)
+            if time.monotonic() - self._last_rx_time > self._policy.heartbeat_timeout_s:
+                logger.warning("No data from Pico for %.0f s — channel silent", self._policy.heartbeat_timeout_s)
                 self._last_rx_time = time.monotonic()
 
             try:

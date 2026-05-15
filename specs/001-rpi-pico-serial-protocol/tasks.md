@@ -126,4 +126,4 @@ Las tareas marcadas `[P]` pueden ejecutarse en paralelo dentro de su fase:
 MVP = Phase 1 + Phase 2 + Phase 3 (US1 completo): canal unidireccional Pico→RPi operativo.
 Phase 4 añade el canal de bajada RPi→Pico. Phase 5 garantiza robustez.
 
-**Estado actual**: Implementación completada y verificada en hardware ✅
+**Estado actual**: Implementación completada — ⚠️ pendiente re-verificación en hardware (T023)

@@ -3,11 +3,12 @@
 **Feature**: `001-rpi-pico-serial-protocol`
 **Branch**: `001-rpi-pico-serial-protocol`
 **Generated**: 2026-05-13
-**Status**: Implementación completada y verificada en hardware ✅
+**Status**: Implementación completada — ⚠️ pendiente re-verificación en hardware tras PR review fixes
 
-> **Nota**: Este archivo fue generado a posteriori. Todas las tareas están completadas: el código
-> pasa 109/109 tests unitarios y la verificación en hardware real (T023) fue ejecutada y marcada
-> como completada.
+> **Nota**: Este archivo fue generado a posteriori. Todas las tareas de código están completadas
+> y pasan 109/109 tests unitarios. La verificación en hardware (T023) fue ejecutada inicialmente,
+> pero se requiere re-verificación tras los fixes del PR review (validación de payloads, handlers
+> de comandos en main.py, udev rule, etc.).
 
 ---
 
@@ -98,7 +99,7 @@ lo descarta, registra en log y sigue procesando mensajes válidos.
 ## Phase 6 — Polish & Cross-cutting
 
 - [x] T022 [P] Crear `host/communication/__init__.py` expone `SerialChannel`, `EventDispatcher` y factories (ya creado; verificar exports completos) ✅
-- [x] T023 Verificar en hardware: conectar Pico + RPi, flashear `pico/tests/verify_channel.py` como `main.py`, ejecutar `PYTHONPATH=. python3 -m pytest host/tests/unit/ -v` desde RPi
+- [ ] T023 Re-verificar en hardware tras PR review fixes: conectar Pico + RPi, flashear `pico/main.py`, ejecutar `PYTHONPATH=. python3 -m pytest host/tests/unit/ -v` desde RPi y probar todos los comandos v1 (led_set, buzzer_beep, state_transition, heartbeat_request)
 - [x] T024 Documentar en `quickstart.md` el comando de test unitario (ya documentado en spec) ✅
 
 ---

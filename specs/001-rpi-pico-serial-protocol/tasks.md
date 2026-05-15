@@ -6,7 +6,7 @@
 **Status**: Implementación completada y verificada en hardware ✅
 
 > **Nota**: Este archivo fue generado a posteriori. Las tareas marcadas `[x]` ya han sido
-> implementadas y verificadas con `pytest` (105/105 tests pasan). Las tareas pendientes corresponden
+> implementadas y verificadas con `pytest` (109/109 tests pasan). Las tareas pendientes corresponden
 > a verificación en hardware real.
 
 ---

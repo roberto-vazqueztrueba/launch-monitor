@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 import serial
 
-from .messages import PROTOCOL_VERSION
+from .messages import PROTOCOL_VERSION, _PROCESS_START_MS
 
 if TYPE_CHECKING:
     from .dispatcher import EventDispatcher
@@ -100,9 +100,9 @@ class SerialChannel:
         if "version" not in message:
             message = {**message, "version": PROTOCOL_VERSION}
         if "timestamp_ms" not in message:
-            # Host uses monotonic process time; Pico uses utime.ticks_ms() (boot-relative).
+            # Host uses ms since process start; Pico uses utime.ticks_ms() (boot-relative).
             # These clocks are independent — do not compare timestamps across directions.
-            message = {**message, "timestamp_ms": int(time.monotonic() * 1000)}
+            message = {**message, "timestamp_ms": int((time.monotonic() - _PROCESS_START_MS) * 1000)}
         if "payload" not in message:
             message = {**message, "payload": {}}
 

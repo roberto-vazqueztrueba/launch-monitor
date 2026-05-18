@@ -8,6 +8,11 @@ from __future__ import annotations
 
 import time
 
+# Capture the monotonic clock at import time so that timestamp_ms in every
+# outgoing envelope represents milliseconds since the host process started,
+# matching the data-model definition for RPi→Pico timestamps.
+_PROCESS_START_MS = time.monotonic()
+
 PROTOCOL_VERSION = "1.0.0"
 
 # ---------------------------------------------------------------------------
@@ -28,7 +33,7 @@ def _envelope(msg_type: str, payload: dict) -> dict:
     return {
         "type": msg_type,
         "version": PROTOCOL_VERSION,
-        "timestamp_ms": int(time.monotonic() * 1000),
+        "timestamp_ms": int((time.monotonic() - _PROCESS_START_MS) * 1000),
         "payload": payload,
     }
 

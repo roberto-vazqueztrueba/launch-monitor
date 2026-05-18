@@ -158,4 +158,8 @@ class UartChannel:
             if payload.get("new_state") not in _VALID_STATES:
                 sys.stderr.write("WARN read_command: invalid state_transition.new_state — discarded\n")
                 return None
+        elif cmd_type in ("heartbeat_ack", "heartbeat_request"):
+            if payload:
+                sys.stderr.write("WARN read_command: " + cmd_type + " payload must be empty — discarded\n")
+                return None
         return msg

@@ -294,6 +294,14 @@ class TestPicoCommandPayloadValidation:
         msg = {**VALID_CMD, "type": "heartbeat_request", "payload": {}}
         assert _parse(msg) is not None
 
+    def test_heartbeat_ack_non_empty_payload_rejected(self):
+        msg = {**VALID_CMD, "type": "heartbeat_ack", "payload": {"extra": True}}
+        assert _parse(msg) is None
+
+    def test_heartbeat_request_non_empty_payload_rejected(self):
+        msg = {**VALID_CMD, "type": "heartbeat_request", "payload": {"extra": True}}
+        assert _parse(msg) is None
+
     # --- unknown type passes through (forward-compatible) ---
 
     def test_unknown_type_passes_through(self):

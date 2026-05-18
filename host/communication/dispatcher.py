@@ -12,6 +12,95 @@ logger = logging.getLogger(__name__)
 _REQUIRED_ENVELOPE_KEYS = {"type", "version", "timestamp_ms", "payload"}
 _PROTOCOL_MAJOR = "1"
 
+# ---------------------------------------------------------------------------
+# Known payload validation rules for Pico → RPi event types.
+# Each entry maps a message type to a list of (field, expected_python_type)
+# tuples that must all be present and correctly typed for the message to be
+# dispatched.  Unknown types pass through unchecked (forward-compatibility).
+# ---------------------------------------------------------------------------
+_NUMERIC = (int, float)
+
+_BUTTON_IDS = frozenset({"BAD_SHOT", "SAVE_SESSION", "CALIBRATE", "RESET_SESSION"})
+_BUTTON_ACTIONS = frozenset({"press", "long_press"})
+_ENCODER_ACTIONS = frozenset({"rotate", "click", "long_press"})
+_ENCODER_DIRECTIONS = frozenset({"cw", "ccw"})
+
+# (field_name, required_type_or_types) — None means "any non-None value"
+_PAYLOAD_REQUIRED_FIELDS: dict[str, list[tuple[str, type | tuple]]] = {
+    "t0_detected": [("confidence", _NUMERIC)],
+    "sensor_ambient": [
+        ("temperature_c", _NUMERIC),
+        ("pressure_hpa", _NUMERIC),
+        ("humidity_pct", _NUMERIC),
+    ],
+    "sensor_imu": [
+        ("pitch_deg", _NUMERIC),
+        ("roll_deg", _NUMERIC),
+    ],
+    "input_button": [
+        ("button_id", str),
+        ("action", str),
+    ],
+    "input_encoder": [
+        ("action", str),
+    ],
+    "input_nfc": [("uid", str)],
+    "heartbeat": [
+        ("uptime_ms", int),
+        ("queue_size", int),
+    ],
+}
+
+
+def _validate_known_payload(msg_type: str, payload: dict) -> str | None:
+    """Return an error string if *payload* fails validation, else None."""
+    rules = _PAYLOAD_REQUIRED_FIELDS.get(msg_type)
+    if rules is None:
+        return None  # unknown type — pass through
+
+    for field, expected in rules:
+        if field not in payload:
+            return f"payload missing required field '{field}'"
+        value = payload[field]
+        # bool is a subclass of int in Python — reject it for numeric fields
+        if isinstance(value, bool):
+            return f"payload field '{field}' must be {expected}, got bool"
+        if not isinstance(value, expected):
+            return f"payload field '{field}' must be {expected}, got {type(value).__name__}"
+
+    # Extra enum / range checks for specific types
+    if msg_type == "t0_detected":
+        c = payload["confidence"]
+        if not (0.0 <= c <= 1.0):
+            return f"payload 'confidence' must be in [0.0, 1.0], got {c}"
+
+    elif msg_type == "input_button":
+        if payload["button_id"] not in _BUTTON_IDS:
+            return f"payload 'button_id' must be one of {sorted(_BUTTON_IDS)}, got {payload['button_id']!r}"
+        if payload["action"] not in _BUTTON_ACTIONS:
+            return f"payload 'action' must be one of {sorted(_BUTTON_ACTIONS)}, got {payload['action']!r}"
+
+    elif msg_type == "input_encoder":
+        if payload["action"] not in _ENCODER_ACTIONS:
+            return f"payload 'action' must be one of {sorted(_ENCODER_ACTIONS)}, got {payload['action']!r}"
+        if payload["action"] == "rotate":
+            if "direction" not in payload:
+                return "payload missing required field 'direction' for rotate action"
+            if payload["direction"] not in _ENCODER_DIRECTIONS:
+                return f"payload 'direction' must be one of {sorted(_ENCODER_DIRECTIONS)}, got {payload['direction']!r}"
+            if "steps" not in payload:
+                return "payload missing required field 'steps' for rotate action"
+            steps = payload["steps"]
+            if isinstance(steps, bool) or not isinstance(steps, int):
+                return f"payload 'steps' must be int, got {type(steps).__name__}"
+
+    elif msg_type == "heartbeat":
+        for field in ("uptime_ms", "queue_size"):
+            if payload[field] < 0:
+                return f"payload '{field}' must be >= 0, got {payload[field]}"
+
+    return None
+
 MessageHandler = Callable[[dict], None]
 
 
@@ -117,6 +206,17 @@ class EventDispatcher:
         payload = msg["payload"]
         if not isinstance(payload, dict):
             logger.warning("Field 'payload' must be a JSON object — discarded: %r", payload)
+            return
+
+        # Validate payload structure for known event types
+        payload_error = _validate_known_payload(msg_type, payload)
+        if payload_error is not None:
+            logger.warning(
+                "Invalid payload for known type '%s' — discarded: %s | msg=%r",
+                msg_type,
+                payload_error,
+                msg,
+            )
             return
 
         # Version compatibility: reject incompatible MAJOR versions

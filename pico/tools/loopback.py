@@ -29,10 +29,12 @@ from event_queue import EventQueue
 import messages as m
 
 LISTEN_S = 30
+ENABLE_DIAGNOSTIC_LOGS = False
 
 
 def _log(msg):
-    sys.stderr.write(msg + "\n")
+    if ENABLE_DIAGNOSTIC_LOGS:
+        sys.stderr.write(msg + "\n")
 
 
 def main() -> None:

@@ -1,7 +1,7 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.2.1 → 1.2.2
+Version change: 1.2.0 → 1.2.2
 Added sections:
   - Propósito del Sistema
   - Clasificación de Datos (MEASURED / CALCULATED / ESTIMATED)
@@ -33,8 +33,7 @@ Templates requiring updates:
   - .specify/templates/tasks-template.md ✅
 Deferred TODOs:
   - Protocolo exacto RPi ↔ Pico: definir en primer feature de comunicación
-  - SEN-14262: confirmar compatibilidad eléctrica con Pico antes de implementar driver
-  - SEN-14262 sustituido por MAX9814 (módulo con AGC integrado)
+  - MAX9814: confirmar compatibilidad eléctrica y de señal con Pico antes de implementar integración
   - BNO055 vs MPU6050: confirmar sensor de inclinación final
 -->
 

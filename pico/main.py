@@ -25,11 +25,11 @@ def _log(msg):
 def main() -> None:
     queue = EventQueue(maxlen=20)
     channel = UartChannel(queue=queue)
+    boot_ms = utime.ticks_ms()
 
     # Wait for USB CDC to initialise
     utime.sleep_ms(2000)
 
-    boot_ms = utime.ticks_ms()
     last_heartbeat = utime.ticks_ms()
 
     while True:

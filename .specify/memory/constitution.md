@@ -1,7 +1,7 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.2.1 → 1.2.2
+Version change: 1.2.0 → 1.2.2
 Added sections:
   - Propósito del Sistema
   - Clasificación de Datos (MEASURED / CALCULATED / ESTIMATED)

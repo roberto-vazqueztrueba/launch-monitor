@@ -32,5 +32,5 @@
 ## Notes
 
 - Especificación completa sin marcadores pendientes. Lista para `/speckit.plan`.
-- Assumption clave a confirmar antes de implementar: velocidad de baudios óptima (115200 vs 230400).
+- Se adopta 115200 como valor convencional de configuración; en USB CDC la velocidad de baudios no afecta el throughput del canal.
 - Tipos de mensajes v1.0 definidos; extensibles sin cambios en el canal.

@@ -17,12 +17,20 @@ import messages as m
 
 _q = EventQueue(maxlen=20)
 _ch = UartChannel(queue=_q)
+_LOG_SENT = False
+
+
+def set_sent_logging(enabled: bool = False) -> None:
+    """Activa o desactiva el log 'sent:' del helper REPL."""
+    global _LOG_SENT
+    _LOG_SENT = enabled
 
 
 def _flush(msg: dict) -> None:
     _q.push(msg)
     _ch.flush()
-    sys.stderr.write("sent: " + msg["type"] + "\n")
+    if _LOG_SENT:
+        sys.stderr.write("sent: " + msg["type"] + "\n")
 
 
 def t0(confidence: float = 0.95) -> None:

@@ -98,6 +98,7 @@ class UartChannel:
             elif isinstance(ch, bytes):
                 chunk = ch
             else:
+                # Unexpected stdin token type; ignore this poll iteration safely.
                 return None
             self._rx_buf += chunk
             if len(self._rx_buf) > self._MAX_FRAME:
@@ -109,7 +110,7 @@ class UartChannel:
         if isinstance(raw, bytes):
             try:
                 raw = raw.decode()
-            except (UnicodeError, AttributeError):
+            except UnicodeError:
                 return None
         try:
             msg = ujson.loads(raw)

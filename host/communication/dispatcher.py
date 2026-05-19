@@ -93,6 +93,11 @@ def _validate_known_payload(msg_type: str, payload: dict) -> str | None:
             steps = payload["steps"]
             if isinstance(steps, bool) or not isinstance(steps, int):
                 return f"payload 'steps' must be int, got {type(steps).__name__}"
+        else:
+            if "direction" in payload:
+                return f"payload field 'direction' is only valid for 'rotate' action, got action {payload['action']!r}"
+            if "steps" in payload:
+                return f"payload field 'steps' is only valid for 'rotate' action, got action {payload['action']!r}"
 
     elif msg_type == "heartbeat":
         for field in ("uptime_ms", "queue_size"):

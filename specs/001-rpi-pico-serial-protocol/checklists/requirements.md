@@ -6,9 +6,9 @@
 
 ## Content Quality
 
-- [x] No implementation details (languages, frameworks, APIs)
-- [x] Focused on user value and business needs
-- [x] Written for non-technical stakeholders
+- [ ] No implementation details (languages, frameworks, APIs)
+- [ ] Focused on user value and business needs
+- [ ] Written for non-technical stakeholders
 - [x] All mandatory sections completed
 
 ## Requirement Completeness
@@ -16,7 +16,7 @@
 - [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
-- [x] Success criteria are technology-agnostic (no implementation details)
+- [ ] Success criteria are technology-agnostic (no implementation details)
 - [x] All acceptance scenarios are defined
 - [x] Edge cases are identified
 - [x] Scope is clearly bounded
@@ -27,10 +27,11 @@
 - [x] All functional requirements have clear acceptance criteria
 - [x] User scenarios cover primary flows
 - [x] Feature meets measurable outcomes defined in Success Criteria
-- [x] No implementation details leak into specification
+- [ ] No implementation details leak into specification
 
 ## Notes
 
 - Especificación completa sin marcadores pendientes. Lista para `/speckit.plan`.
 - Se adopta 115200 como valor convencional de configuración; en USB CDC la velocidad de baudios no afecta el throughput del canal.
 - Tipos de mensajes v1.0 definidos; extensibles sin cambios en el canal.
+- **Nota de calidad**: La spec incluye decisiones técnicas concretas (USB-serial, JSON framing, BME280, criterios de aceptación técnicos). Esto es intencional dado el contexto de firmware embebido, pero implica que los ítems marcados arriba como ✗ no se cumplen en sentido estricto para una audiencia no técnica. La spec es válida como documento técnico de referencia para el equipo de desarrollo.

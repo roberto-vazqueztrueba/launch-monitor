@@ -6,7 +6,7 @@
 **Status**: Implementación completada — ⚠️ pendiente re-verificación en hardware tras PR review fixes
 
 > **Nota**: Este archivo fue generado a posteriori. Todas las tareas de código están completadas
-> y pasan 122/122 tests unitarios. La verificación en hardware (T023) fue ejecutada inicialmente,
+> y pasan 133/133 tests unitarios. La verificación en hardware (T023) fue ejecutada inicialmente,
 > pero se requiere re-verificación tras los fixes del PR review (validación de payloads, handlers
 > de comandos en main.py, udev rule, etc.).
 

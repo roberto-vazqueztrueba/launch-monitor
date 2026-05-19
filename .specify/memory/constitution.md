@@ -351,7 +351,7 @@ depender de la implementación concreta de ningún sensor.
 
 Inventario de sensores/periféricos conocidos (a 2026-05-05):
 - **Radar**: Texas Instruments IWR6842BOOST (conectado directo a RPi)
-- **Micrófono**: SparkFun SEN-14262 (conectado a RPi Pico)
+- **Micrófono**: MAX9814 (conectado a RPi Pico)
 - **Ambiental**: BME280 — temperatura, presión, humedad (conectado a RPi Pico)
 - **IMU**: MPU6050 — acelerómetro + giroscopio para inclinación del dispositivo (RPi Pico)
 - **NFC**: PN532 (conectado a RPi Pico)
@@ -400,7 +400,7 @@ restricción técnica, no solo una preferencia.
 │  │    (radar)   │    │       MicroPython          │  │
 │  │  USB/serial  │    │                           │  │
 │  └──────────────┘    │  ┌─────────┐ ┌─────────┐  │  │
-│                      │  │SEN-14262│ │ BME280  │  │  │
+│                      │  │ MAX9814 │ │ BME280  │  │  │
 │                      │  │  (mic)  │ │(amb.)   │  │  │
 │                      │  └─────────┘ └─────────┘  │  │
 │                      │  ┌─────────┐ ┌─────────┐  │  │

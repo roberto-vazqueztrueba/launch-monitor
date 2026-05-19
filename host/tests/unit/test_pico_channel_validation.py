@@ -32,9 +32,13 @@ def _install_micropython_stubs():
 
 _install_micropython_stubs()
 
-# Add pico/ directory to path so the module can be imported directly
+# Add pico/ and pico/communication to path so channel.py can import config.py
+# and the module can still be imported directly as `channel`.
 import pathlib
+_PICO_ROOT = str(pathlib.Path(__file__).parents[3] / "pico")
 _PICO_COMM = str(pathlib.Path(__file__).parents[3] / "pico" / "communication")
+if _PICO_ROOT not in sys.path:
+    sys.path.insert(0, _PICO_ROOT)
 if _PICO_COMM not in sys.path:
     sys.path.insert(0, _PICO_COMM)
 

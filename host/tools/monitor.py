@@ -14,15 +14,16 @@ import threading
 import time
 
 # Colour codes (degrade gracefully if terminal doesn't support them)
+_COLOUR_ENABLED = sys.stdout.isatty()
 _C = {
-    "reset":   "\033[0m",
-    "bold":    "\033[1m",
-    "grey":    "\033[90m",
-    "green":   "\033[92m",
-    "yellow":  "\033[93m",
-    "cyan":    "\033[96m",
-    "red":     "\033[91m",
-    "magenta": "\033[95m",
+    "reset":   "\033[0m" if _COLOUR_ENABLED else "",
+    "bold":    "\033[1m" if _COLOUR_ENABLED else "",
+    "grey":    "\033[90m" if _COLOUR_ENABLED else "",
+    "green":   "\033[92m" if _COLOUR_ENABLED else "",
+    "yellow":  "\033[93m" if _COLOUR_ENABLED else "",
+    "cyan":    "\033[96m" if _COLOUR_ENABLED else "",
+    "red":     "\033[91m" if _COLOUR_ENABLED else "",
+    "magenta": "\033[95m" if _COLOUR_ENABLED else "",
 }
 
 _TYPE_COLOUR = {

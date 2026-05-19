@@ -210,7 +210,6 @@ class TestFrameSizeLimit:
         import time
         with patch.object(channel, "_running", True):
             # Patch _running to stop after one iteration
-            original_readline = mock_serial.readline
             call_count = {"n": 0}
             def one_shot(*args, **kwargs):
                 call_count["n"] += 1

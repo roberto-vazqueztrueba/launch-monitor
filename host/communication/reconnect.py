@@ -32,6 +32,3 @@ class ReconnectPolicy:
     interval_s: float = RECONNECT_INTERVAL_S
     heartbeat_timeout_s: float = HEARTBEAT_TIMEOUT_S
     max_attempts: int = RECONNECT_MAX_ATTEMPTS  # 0 = unlimited
-
-
-DEFAULT_POLICY = ReconnectPolicy()

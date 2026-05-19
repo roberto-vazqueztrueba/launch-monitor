@@ -53,7 +53,11 @@ class UartChannel:
     def send_now(self, msg):
         """Serialise and write *msg* immediately, bypassing the queue.
 
-        Use sparingly — prefer :meth:`flush` with the queue for normal flow.
+        Reserved for urgent out-of-band transmissions that cannot wait for the
+        next :meth:`flush` cycle — for example, a fatal error or assertion
+        failure that must be reported before the firmware halts.  Under normal
+        operation all outbound messages should go through the :class:`EventQueue`
+        so that back-pressure and ordering are handled consistently.
 
         Args:
             msg: Dictionary with at least a ``type`` key.

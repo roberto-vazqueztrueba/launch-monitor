@@ -7,7 +7,6 @@ channel module can be imported and exercised under standard CPython/pytest.
 import json
 import sys
 import types
-import importlib
 from unittest.mock import MagicMock
 import pytest
 
@@ -27,7 +26,7 @@ def _install_micropython_stubs():
     # utime — not used by read_command, but imported at module level
     utime_mod = types.ModuleType("utime")
     utime_mod.ticks_ms = lambda: 0
-    utime_mod.sleep_ms = lambda ms: None
+    utime_mod.sleep_ms = lambda _: None
     sys.modules.setdefault("utime", utime_mod)
 
 

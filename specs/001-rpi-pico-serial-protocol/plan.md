@@ -55,7 +55,7 @@ specs/001-rpi-pico-serial-protocol/
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   └── serial-protocol-v1.md
-└── tasks.md             # Phase 2 output (/speckit.tasks - NO creado aquí)
+└── tasks.md             # Phase 2 output (/speckit.tasks)
 ```
 
 ### Source Code (repository root)

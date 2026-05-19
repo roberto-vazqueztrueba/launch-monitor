@@ -2,8 +2,7 @@
 #
 # Minimal production bootstrap: sends heartbeats every 2s and handles the
 # v1 command set. Hardware drivers (GPIO, PWM) will be wired in future
-# features; for now each command is acknowledged via sys.stderr so the
-# bidirectional channel can be verified end-to-end without real peripherals.
+# features; stub handlers are silent until real peripherals are connected.
 
 import utime
 import sys
@@ -14,11 +13,6 @@ if "communication" not in sys.path:
 from channel import UartChannel
 from event_queue import EventQueue
 import messages as m
-
-
-def _log(msg):
-    sys.stderr.write(msg + "\n")
-
 
 def main() -> None:
     queue = EventQueue(maxlen=config.EVENT_QUEUE_MAXLEN)
@@ -43,26 +37,15 @@ def main() -> None:
         cmd = channel.read_command()
         if cmd is not None:
             cmd_type = cmd["type"]
-            payload = cmd["payload"]
             if cmd_type == "heartbeat_request":
                 uptime = utime.ticks_diff(utime.ticks_ms(), boot_ms)
                 queue.push(m.heartbeat(uptime_ms=uptime, queue_size=queue.size()))
             elif cmd_type == "led_set":
-                # TODO: drive GPIO when LED hardware is wired
-                _log("led_set {led_id}={state}".format(
-                    led_id=payload.get("led_id", ""),
-                    state=payload.get("state", ""),
-                ))
+                pass  # TODO: drive GPIO when LED hardware is wired
             elif cmd_type == "buzzer_beep":
-                # TODO: drive PWM when buzzer hardware is wired
-                _log("buzzer_beep pattern={pattern}".format(
-                    pattern=payload.get("pattern", ""),
-                ))
+                pass  # TODO: drive PWM when buzzer hardware is wired
             elif cmd_type == "state_transition":
-                # TODO: update local state machine when implemented
-                _log("state_transition new_state={new_state}".format(
-                    new_state=payload.get("new_state", ""),
-                ))
+                pass  # TODO: update local state machine when implemented
 
         utime.sleep_ms(config.FLUSH_INTERVAL_MS)
 

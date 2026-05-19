@@ -65,8 +65,20 @@ def _print_msg(msg: dict) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Live Pico serial monitor")
-    parser.add_argument("--port", default="/dev/pico")
+    parser = argparse.ArgumentParser(
+        description="Live Pico serial monitor",
+        epilog=(
+            "The default port /dev/pico requires a udev symlink rule. "
+            "See specs/001-rpi-pico-serial-protocol/quickstart.md for setup instructions. "
+            "Without the rule use --port /dev/ttyACM0 (or the appropriate COM port on Windows)."
+        ),
+    )
+    parser.add_argument(
+        "--port",
+        default="/dev/pico",
+        help="Serial port device (default: /dev/pico — requires udev rule; "
+             "use /dev/ttyACM0 if the symlink is not configured)",
+    )
     parser.add_argument("--time", type=int, default=0, help="Run for N seconds then exit (0=forever)")
     args = parser.parse_args()
 
@@ -92,17 +104,23 @@ def main() -> None:
     print(_c("bold", f"\n=== Pico Monitor — {args.port} ==="))
     print(_c("grey", _COMMANDS))
 
+    # Shared stop event: set by 'q'/KeyboardInterrupt in either thread so
+    # the main thread wakes from its interruptible wait immediately.
+    stop_event = threading.Event()
+
     def input_loop() -> None:
-        while True:
+        while not stop_event.is_set():
             try:
                 raw = input("> ").strip().lower()
             except (EOFError, KeyboardInterrupt):
+                stop_event.set()
                 channel.stop()
-                sys.exit(0)
+                return
 
             if raw in ("q", "quit", "exit"):
+                stop_event.set()
                 channel.stop()
-                sys.exit(0)
+                return
             elif raw == "led on":
                 channel.send(m.make_led_set("status", "on"))
             elif raw == "led off":
@@ -135,12 +153,14 @@ def main() -> None:
 
     try:
         if args.time:
-            time.sleep(args.time)
-            channel.stop()
+            # Wait for the timeout or for an interactive quit — whichever comes first.
+            stop_event.wait(timeout=args.time)
+            if not stop_event.is_set():
+                channel.stop()
         else:
-            while t.is_alive():
-                time.sleep(0.1)
+            stop_event.wait()
     except KeyboardInterrupt:
+        stop_event.set()
         channel.stop()
 
 

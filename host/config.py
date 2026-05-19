@@ -34,8 +34,9 @@ MAJOR component differs from "1"."""
 
 SERIAL_PORT: str = "/dev/pico"
 """Device path to the Pico USB-CDC port.
-On Linux a udev rule creates the ``/dev/pico`` symlink; on macOS use
-``/dev/tty.usbmodem*``; on Windows use ``COM<n>``."""
+Requires a udev symlink rule — see specs/001-rpi-pico-serial-protocol/quickstart.md.
+Without the rule use ``/dev/ttyACM0`` (Linux) or ``COM<n>`` (Windows) and
+pass it explicitly to :class:`SerialChannel` or via ``--port`` on the monitor."""
 
 BAUD_RATE: int = 115200
 """Baud-rate configured on the pyserial port.

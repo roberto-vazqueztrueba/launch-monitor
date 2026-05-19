@@ -63,21 +63,48 @@ class SerialChannel:
     # ------------------------------------------------------------------
 
     def start(self) -> None:
-        """Start the background reader thread. Idempotent."""
+        """Start the background reader thread. Idempotent.
+
+        Raises:
+            RuntimeError: If a previous reader thread is still alive (i.e.
+                :meth:`stop` was called but the thread did not exit in time).
+                Call :meth:`stop` again and wait before retrying.
+        """
         if self._running:
             return
+        if self._thread is not None and self._thread.is_alive():
+            raise RuntimeError(
+                "Cannot start SerialChannel: previous reader thread is still alive. "
+                "Call stop() and wait for it to exit before calling start() again."
+            )
         self._running = True
         self._thread = threading.Thread(target=self._run, daemon=True, name="serial-reader")
         self._thread.start()
         logger.info("SerialChannel started on %s", self._port)
 
     def stop(self) -> None:
-        """Stop the background reader thread and close the port."""
+        """Stop the background reader thread and close the port.
+
+        The port is closed before joining so that any ``readline()`` blocked
+        inside ``_read_loop`` gets a ``SerialException`` immediately rather
+        than waiting for the full read timeout.  ``_thread`` is only set to
+        ``None`` after the join confirms the thread has exited; if the join
+        times out the reference is kept so that a subsequent :meth:`start`
+        call can detect that the old thread is still alive and refuse to
+        spawn a second one.
+        """
         self._running = False
+        # Close the port first so readline() unblocks immediately.
+        self._close_port()
         if self._thread is not None and self._thread is not threading.current_thread():
             self._thread.join(timeout=3.0)
-            self._thread = None
-        self._close_port()
+            if not self._thread.is_alive():
+                self._thread = None
+            else:
+                logger.warning(
+                    "stop(): reader thread did not exit within 3 s — "
+                    "leaving reference intact to prevent duplicate threads"
+                )
         logger.info("SerialChannel stopped")
 
     def send(self, message: dict) -> None:
@@ -136,13 +163,36 @@ class SerialChannel:
     # ------------------------------------------------------------------
 
     def _run(self) -> None:
-        """Main loop: open port, read lines, reconnect on error."""
+        """Main loop: open port, read lines, reconnect on error.
+
+        Reconnection attempts are counted globally across the lifetime of this
+        call.  When :attr:`ReconnectPolicy.max_attempts` is non-zero the loop
+        stops after that many failed open/read cycles and sets
+        ``_running = False``.
+        """
+        reconnect_attempts = 0
         while self._running:
             try:
                 self._open_port()
+                if not self._running:
+                    # _open_port() exhausted max_attempts and set _running=False
+                    break
+                reconnect_attempts = 0  # successful open resets the counter
                 self._read_loop()
             except serial.SerialException as exc:
-                logger.warning("Serial error: %s — reconnecting in %.1f s", exc, self._policy.interval_s)
+                reconnect_attempts += 1
+                max_a = self._policy.max_attempts
+                if max_a > 0 and reconnect_attempts >= max_a:
+                    logger.error(
+                        "Serial error after %d reconnect attempt(s): %s — giving up",
+                        reconnect_attempts, exc,
+                    )
+                    self._running = False
+                    break
+                logger.warning(
+                    "Serial error: %s — reconnecting in %.1f s (attempt %d)",
+                    exc, self._policy.interval_s, reconnect_attempts,
+                )
                 self._close_port()
                 time.sleep(self._policy.interval_s)
 

@@ -89,20 +89,31 @@ class UartChannel:
             ch = sys.stdin.read(1)
             if not ch:
                 return None
-            if ch == "\n":
+            if ch == "\n" or ch == b"\n":
                 raw = self._rx_buf.strip()
                 self._rx_buf = b""
                 break
-            self._rx_buf += ch.encode() if isinstance(ch, str) else ch
+            if isinstance(ch, str):
+                chunk = ch.encode()
+            elif isinstance(ch, bytes):
+                chunk = ch
+            else:
+                return None
+            self._rx_buf += chunk
             if len(self._rx_buf) > self._MAX_FRAME:
                 # Host sent too many bytes without a newline — discard and reset
                 self._rx_buf = b""
                 return None
         if not raw:
             return None
+        if isinstance(raw, bytes):
+            try:
+                raw = raw.decode()
+            except (UnicodeError, AttributeError):
+                return None
         try:
             msg = ujson.loads(raw)
-        except ValueError:
+        except (ValueError, TypeError):
             # sys.stderr.write("WARN read_command: malformed JSON discarded: " + str(raw[:80]) + "\n")
             return None
         if not isinstance(msg, dict):

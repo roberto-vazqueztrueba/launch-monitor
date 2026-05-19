@@ -63,7 +63,10 @@ def _make_channel_with_input(line: str):
     import channel as pico_channel  # noqa: PLC0415
 
     # Patch select inside the module to return ready on each byte then stop
-    chars = list(line)
+    if isinstance(line, (bytes, bytearray)):
+        chars = [bytes([b]) for b in line]
+    else:
+        chars = list(line)
     call_count = {"n": 0}
 
     def fake_select(rlist, wlist, xlist, timeout):
@@ -156,6 +159,10 @@ class TestPicoChannelValidation:
     def test_rejects_malformed_json(self):
         result = _make_channel_with_input("not json\n")
         assert result is None
+
+    def test_accepts_bytes_newline_stream(self):
+        line = (json.dumps(VALID_CMD) + "\n").encode()
+        assert _make_channel_with_input(line) is not None
 
     def test_oversized_frame_without_newline_is_discarded(self):
         """_rx_buf exceeding _MAX_FRAME bytes without a newline must be discarded."""

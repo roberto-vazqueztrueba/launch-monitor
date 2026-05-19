@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "launch-monitor-host"
+version = "0.1.0"
+description = "RPi host communication stack for launch monitor"
+requires-python = ">=3.11"
+dependencies = [
+    "pyserial>=3.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools.packages.find]
+# Search one level up so setuptools discovers the `host` package and its
+# `host.communication` sub-package.  Without this, setuptools roots its
+# search inside host/ and installs `communication` as a top-level package,
+# breaking all `host.communication.*` imports.
+where = [".."]
+include = ["host*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

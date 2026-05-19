@@ -1,0 +1,50 @@
+[
+  {
+    "type": "t0_detected",
+    "version": "1.0.0",
+    "timestamp_ms": 45231,
+    "payload": {"confidence": 0.92}
+  },
+  {
+    "type": "sensor_ambient",
+    "version": "1.0.0",
+    "timestamp_ms": 45400,
+    "payload": {"temperature_c": 21.3, "pressure_hpa": 1013.2, "humidity_pct": 58.1}
+  },
+  {
+    "type": "sensor_imu",
+    "version": "1.0.0",
+    "timestamp_ms": 45410,
+    "payload": {"pitch_deg": -2.1, "roll_deg": 0.3}
+  },
+  {
+    "type": "input_button",
+    "version": "1.0.0",
+    "timestamp_ms": 46001,
+    "payload": {"button_id": "BAD_SHOT", "action": "press"}
+  },
+  {
+    "type": "input_encoder",
+    "version": "1.0.0",
+    "timestamp_ms": 46050,
+    "payload": {"action": "rotate", "direction": "cw", "steps": 2}
+  },
+  {
+    "type": "input_nfc",
+    "version": "1.0.0",
+    "timestamp_ms": 46200,
+    "payload": {"uid": "04:A3:2B:C1"}
+  },
+  {
+    "type": "heartbeat",
+    "version": "1.0.0",
+    "timestamp_ms": 48000,
+    "payload": {"uptime_ms": 48000, "queue_size": 0}
+  },
+  {
+    "type": "unknown_future_type",
+    "version": "1.0.0",
+    "timestamp_ms": 50000,
+    "payload": {"extra_field": "should be ignored"}
+  }
+]

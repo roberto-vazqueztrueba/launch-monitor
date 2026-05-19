@@ -1,7 +1,7 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 → 1.2.0
+Version change: 1.2.0 → 1.2.2
 Added sections:
   - Propósito del Sistema
   - Clasificación de Datos (MEASURED / CALCULATED / ESTIMATED)
@@ -33,7 +33,7 @@ Templates requiring updates:
   - .specify/templates/tasks-template.md ✅
 Deferred TODOs:
   - Protocolo exacto RPi ↔ Pico: definir en primer feature de comunicación
-  - SEN-14262: confirmar compatibilidad eléctrica con Pico antes de implementar driver
+  - MAX9814: confirmar compatibilidad eléctrica y de señal con Pico antes de implementar integración
   - BNO055 vs MPU6050: confirmar sensor de inclinación final
 -->
 
@@ -61,7 +61,7 @@ El sistema NO DEBE mostrar datos sin confianza asociada. NO DEBE inventar valore
 **Clasificación obligatoria de datos** — todo dato DEBE etiquetarse como una de:
 - `MEASURED` — medido directamente por un sensor (radar, micrófono, IMU...)
 - `CALCULATED` — derivado de mediciones mediante física directa (smash factor, ángulo de lanzamiento...)
-- `ESTIMATED` — inferido con un modelo (spin, trayectoria completa, carry...)
+- `ESTIMATED` — inferido con un modelo (spin, trayectoria completa, carry, punto de aterrizaje...)
 
 Nunca mezclar categorías sin etiquetar explícitamente.
 
@@ -76,7 +76,7 @@ depender de la implementación concreta de ningún sensor.
 
 Inventario de sensores/periféricos (a 2026-05-05):
 - **Radar**: Texas Instruments IWR6842BOOST (conectado directo a RPi)
-- **Micrófono**: SparkFun SEN-14262 (conectado a RPi Pico) — fuente de `t0`
+- **Micrófono**: MAX9814 (módulo con AGC integrado, conectado a RPi Pico) — fuente de `t0`
 - **Ambiental**: BME280 — temperatura, presión, humedad (RPi Pico)
 - **IMU**: MPU6050 / BNO055 — inclinación del dispositivo (RPi Pico) `TODO: confirmar modelo final`
 - **NFC**: PN532 (RPi Pico) — selección rápida de perfil
@@ -179,7 +179,7 @@ robustez es una restricción técnica, no una preferencia.
 │  │    (radar)   │    │       MicroPython         │  │
 │  │  USB/serial  │    │                           │  │
 │  └──────────────┘    │  ┌─────────┐ ┌─────────┐  │  │
-│                      │  │SEN-14262│ │ BME280  │  │  │
+│                      │  │ MAX9814 │ │ BME280  │  │  │
 │                      │  │  (mic)  │ │(ambient)│  │  │
 │                      │  └─────────┘ └─────────┘  │  │
 │                      │  ┌─────────┐ ┌─────────┐  │  │
@@ -249,6 +249,7 @@ El modo afecta: radar pipeline, BallisticsEngine, y la confianza reportada de ca
 | `launch_angle`  | float (°)    | `CALCULATED` |
 | `apex`          | float (m)    | `CALCULATED` |
 | `carry`         | float (m)    | `ESTIMATED`  |
+| `landing_spot`  | point (x, y) | `ESTIMATED`  |
 | `trajectory`    | list[point]  | `ESTIMATED`  |
 | `spin`          | float (rpm)  | `ESTIMATED`  |
 | `spin_axis`     | float (°)    | `ESTIMATED`  |
@@ -330,7 +331,7 @@ enmiendas DEBEN:
 Todos los PRs/revisiones DEBEN verificar el cumplimiento de los principios I-VII. La complejidad
 añadida DEBE justificarse explícitamente contra el Principio VII.
 
-**Version**: 1.2.0 | **Ratified**: 2026-05-05 | **Last Amended**: 2026-05-05
+**Version**: 1.2.2 | **Ratified**: 2026-05-05 | **Last Amended**: 2026-05-06
 
 ### I. Precisión de Medición (NON-NEGOTIABLE)
 
@@ -350,7 +351,7 @@ depender de la implementación concreta de ningún sensor.
 
 Inventario de sensores/periféricos conocidos (a 2026-05-05):
 - **Radar**: Texas Instruments IWR6842BOOST (conectado directo a RPi)
-- **Micrófono**: SparkFun SEN-14262 (conectado a RPi Pico)
+- **Micrófono**: MAX9814 (conectado a RPi Pico)
 - **Ambiental**: BME280 — temperatura, presión, humedad (conectado a RPi Pico)
 - **IMU**: MPU6050 — acelerómetro + giroscopio para inclinación del dispositivo (RPi Pico)
 - **NFC**: PN532 (conectado a RPi Pico)
@@ -399,7 +400,7 @@ restricción técnica, no solo una preferencia.
 │  │    (radar)   │    │       MicroPython          │  │
 │  │  USB/serial  │    │                           │  │
 │  └──────────────┘    │  ┌─────────┐ ┌─────────┐  │  │
-│                      │  │SEN-14262│ │ BME280  │  │  │
+│                      │  │ MAX9814 │ │ BME280  │  │  │
 │                      │  │  (mic)  │ │(amb.)   │  │  │
 │                      │  └─────────┘ └─────────┘  │  │
 │                      │  ┌─────────┐ ┌─────────┐  │  │

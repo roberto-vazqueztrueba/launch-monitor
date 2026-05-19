@@ -10,15 +10,20 @@ from typing import TYPE_CHECKING
 
 import serial
 
-from .messages import PROTOCOL_VERSION, _PROCESS_START_MS
+from ..config import (
+    BAUD_RATE,
+    MAX_FRAME_BYTES,
+    PROTOCOL_VERSION,
+    SERIAL_PORT,
+    SERIAL_TIMEOUT_S,
+    PROCESS_START_MS,
+)
 
 if TYPE_CHECKING:
     from .dispatcher import EventDispatcher
     from .reconnect import ReconnectPolicy
 
 logger = logging.getLogger(__name__)
-
-_MAX_FRAME_BYTES = 4096  # largest valid JSON frame; protects against noisy/no-newline input
 
 
 class SerialChannel:
@@ -36,9 +41,9 @@ class SerialChannel:
     def __init__(
         self,
         dispatcher: "EventDispatcher",
-        port: str = "/dev/pico",
-        baudrate: int = 115200,
-        timeout: float = 1.0,
+        port: str = SERIAL_PORT,
+        baudrate: int = BAUD_RATE,
+        timeout: float = SERIAL_TIMEOUT_S,
         policy: "ReconnectPolicy | None" = None,
     ) -> None:
         from .reconnect import ReconnectPolicy as _RP
@@ -102,7 +107,7 @@ class SerialChannel:
         if "timestamp_ms" not in message:
             # Host uses ms since process start; Pico uses utime.ticks_ms() (boot-relative).
             # These clocks are independent — do not compare timestamps across directions.
-            message = {**message, "timestamp_ms": int((time.monotonic() - _PROCESS_START_MS) * 1000)}
+            message = {**message, "timestamp_ms": int((time.monotonic() - PROCESS_START_MS) * 1000)}
         if "payload" not in message:
             message = {**message, "payload": {}}
 
@@ -195,15 +200,15 @@ class SerialChannel:
                     logger.debug("heartbeat_request send failed: %s", exc)
 
             try:
-                raw = ser.readline(_MAX_FRAME_BYTES)
+                raw = ser.readline(MAX_FRAME_BYTES)
             except serial.SerialException:
                 raise
 
             if not raw:
                 continue
 
-            if len(raw) == _MAX_FRAME_BYTES and not raw.endswith(b"\n"):
-                logger.warning("Frame exceeded %d bytes without newline — discarded", _MAX_FRAME_BYTES)
+            if len(raw) == MAX_FRAME_BYTES and not raw.endswith(b"\n"):
+                logger.warning("Frame exceeded %d bytes without newline — discarded", MAX_FRAME_BYTES)
                 continue
 
             self._last_rx_time = time.monotonic()

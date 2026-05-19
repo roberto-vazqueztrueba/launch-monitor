@@ -7,6 +7,7 @@
 
 import utime
 import sys
+import config
 
 if "communication" not in sys.path:
     sys.path.append("communication")
@@ -14,28 +15,25 @@ from channel import UartChannel
 from event_queue import EventQueue
 import messages as m
 
-HEARTBEAT_INTERVAL_MS = 2000
-FLUSH_INTERVAL_MS = 10
-
 
 def _log(msg):
     sys.stderr.write(msg + "\n")
 
 
 def main() -> None:
-    queue = EventQueue(maxlen=20)
+    queue = EventQueue(maxlen=config.EVENT_QUEUE_MAXLEN)
     channel = UartChannel(queue=queue)
     boot_ms = utime.ticks_ms()
 
     # Wait for USB CDC to initialise
-    utime.sleep_ms(2000)
+    utime.sleep_ms(config.USB_STARTUP_DELAY_MS)
 
     last_heartbeat = utime.ticks_ms()
 
     while True:
         now = utime.ticks_ms()
 
-        if utime.ticks_diff(now, last_heartbeat) >= HEARTBEAT_INTERVAL_MS:
+        if utime.ticks_diff(now, last_heartbeat) >= config.HEARTBEAT_INTERVAL_MS:
             uptime = utime.ticks_diff(now, boot_ms)
             queue.push(m.heartbeat(uptime_ms=uptime, queue_size=queue.size()))
             last_heartbeat = now
@@ -66,7 +64,7 @@ def main() -> None:
                     new_state=payload.get("new_state", ""),
                 ))
 
-        utime.sleep_ms(FLUSH_INTERVAL_MS)
+        utime.sleep_ms(config.FLUSH_INTERVAL_MS)
 
 
 if __name__ == "__main__":

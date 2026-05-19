@@ -6,8 +6,7 @@
 import sys
 import ujson
 import utime
-
-_PROTOCOL_VERSION = "1.0.0"
+import config
 
 
 class UartChannel:
@@ -23,7 +22,7 @@ class UartChannel:
     def __init__(self, queue) -> None:
         self._queue = queue
         self._rx_buf = b""  # persists across read_command() calls
-        self._MAX_FRAME = 1024  # max bytes before discarding partial frame (RAM guard)
+        self._MAX_FRAME = config.MAX_FRAME_BYTES  # max bytes before discarding partial frame (RAM guard)
 
     def flush(self) -> None:
         """Drain the queue and write each message as a JSON line.
@@ -36,7 +35,7 @@ class UartChannel:
                 break
             # Stamp version and timestamp if not already set
             if "version" not in msg:
-                msg["version"] = _PROTOCOL_VERSION
+                msg["version"] = config.PROTOCOL_VERSION
             if "timestamp_ms" not in msg:
                 msg["timestamp_ms"] = utime.ticks_ms()
             if "payload" not in msg:
@@ -60,7 +59,7 @@ class UartChannel:
             msg: Dictionary with at least a ``type`` key.
         """
         if "version" not in msg:
-            msg["version"] = _PROTOCOL_VERSION
+            msg["version"] = config.PROTOCOL_VERSION
         if "timestamp_ms" not in msg:
             msg["timestamp_ms"] = utime.ticks_ms()
         if "payload" not in msg:

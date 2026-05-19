@@ -5,8 +5,6 @@
 
 from collections import deque
 
-_DEFAULT_MAXLEN = 20
-
 
 class EventQueue:
     """Thread-safe (single-core) bounded FIFO message queue.
@@ -18,7 +16,7 @@ class EventQueue:
         maxlen: Maximum number of messages to hold. Defaults to 20.
     """
 
-    def __init__(self, maxlen: int = _DEFAULT_MAXLEN) -> None:
+    def __init__(self, maxlen: int = 20) -> None:
         self._maxlen = maxlen
         self._q = deque((), maxlen)
 

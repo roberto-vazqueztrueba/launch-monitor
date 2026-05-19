@@ -10,6 +10,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ..config import (
+    HEARTBEAT_TIMEOUT_S,
+    RECONNECT_INTERVAL_S,
+    RECONNECT_MAX_ATTEMPTS,
+)
+
 
 @dataclass
 class ReconnectPolicy:
@@ -23,9 +29,9 @@ class ReconnectPolicy:
             ``0`` means unlimited retries (default).
     """
 
-    interval_s: float = 0.5
-    heartbeat_timeout_s: float = 5.0
-    max_attempts: int = 0  # 0 = unlimited
+    interval_s: float = RECONNECT_INTERVAL_S
+    heartbeat_timeout_s: float = HEARTBEAT_TIMEOUT_S
+    max_attempts: int = RECONNECT_MAX_ATTEMPTS  # 0 = unlimited
 
 
 DEFAULT_POLICY = ReconnectPolicy()

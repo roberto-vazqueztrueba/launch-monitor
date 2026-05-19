@@ -5,14 +5,13 @@
 # you may also supply it explicitly for precise timing.
 
 import utime
-
-_VERSION = "1.0.0"
+import config
 
 
 def _msg(msg_type, payload, timestamp_ms=None):
     return {
         "type": msg_type,
-        "version": _VERSION,
+        "version": config.PROTOCOL_VERSION,
         "timestamp_ms": timestamp_ms if timestamp_ms is not None else utime.ticks_ms(),
         "payload": payload,
     }

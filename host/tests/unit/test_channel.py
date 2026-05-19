@@ -161,7 +161,7 @@ class TestFrameSizeLimit:
 
     def test_oversized_frame_without_newline_is_discarded(self):
         """_read_loop() must not dispatch a frame that fills readline()'s buffer (no newline)."""
-        from host.communication.channel import _MAX_FRAME_BYTES
+        from host.config import MAX_FRAME_BYTES
         channel, dispatcher = self._make_channel()
         received = []
         dispatcher.register("t0_detected", lambda m: received.append(m))
@@ -171,7 +171,7 @@ class TestFrameSizeLimit:
 
         # First call: oversized frame (no trailing newline — fills the buffer exactly)
         # Second call: stop the loop
-        oversized = b"x" * _MAX_FRAME_BYTES
+        oversized = b"x" * MAX_FRAME_BYTES
         call_n = {"n": 0}
         def readline_side_effect(size):
             call_n["n"] += 1
@@ -192,7 +192,8 @@ class TestFrameSizeLimit:
 
     def test_readline_called_with_max_frame_size(self):
         """readline() must be called with _MAX_FRAME_BYTES as the size argument."""
-        from host.communication.channel import _MAX_FRAME_BYTES, SerialChannel
+        from host.config import MAX_FRAME_BYTES
+        from host.communication.channel import SerialChannel
         from host.communication.dispatcher import EventDispatcher
 
         dispatcher = EventDispatcher()
@@ -223,7 +224,7 @@ class TestFrameSizeLimit:
                 except Exception:
                     pass
 
-        mock_serial.readline.assert_called_with(_MAX_FRAME_BYTES)
+        mock_serial.readline.assert_called_with(MAX_FRAME_BYTES)
 
 
 # ---------------------------------------------------------------------------
@@ -247,7 +248,7 @@ class TestHeartbeatWatchdog:
     def test_watchdog_sends_heartbeat_request_after_timeout(self):
         """When no bytes arrive for > heartbeat_timeout_s, one heartbeat_request is sent."""
         import json as _json
-        from host.communication.channel import _MAX_FRAME_BYTES
+        from host.config import MAX_FRAME_BYTES
 
         channel = self._make_channel(heartbeat_timeout_s=5.0)
 

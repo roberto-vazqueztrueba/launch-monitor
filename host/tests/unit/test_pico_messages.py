@@ -17,6 +17,10 @@ utime_mod = types.ModuleType("utime")
 utime_mod.ticks_ms = lambda: 1000
 sys.modules.setdefault("utime", utime_mod)
 
+_PICO_ROOT = str(pathlib.Path(__file__).parents[3] / "pico")
+if _PICO_ROOT not in sys.path:
+    sys.path.insert(0, _PICO_ROOT)
+
 _PICO_COMM = str(pathlib.Path(__file__).parents[3] / "pico" / "communication")
 if _PICO_COMM not in sys.path:
     sys.path.insert(0, _PICO_COMM)

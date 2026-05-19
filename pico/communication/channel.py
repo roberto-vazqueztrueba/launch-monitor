@@ -107,11 +107,10 @@ class UartChannel:
                 return None
         if not raw:
             return None
-        if isinstance(raw, bytes):
-            try:
-                raw = raw.decode()
-            except UnicodeError:
-                return None
+        try:
+            raw = raw.decode()
+        except UnicodeError:
+            return None
         try:
             msg = ujson.loads(raw)
         except (ValueError, TypeError):

@@ -7,7 +7,11 @@ from collections import deque
 
 
 class EventQueue:
-    """Thread-safe (single-core) bounded FIFO message queue.
+    """Bounded FIFO message queue for single execution-context use.
+
+    This queue does not provide locking or atomicity guarantees and should
+    not be treated as safe for concurrent access from multiple threads or
+    interrupt contexts.
 
     When the queue is full, the oldest message is dropped to make room for
     the newest one, ensuring freshness under backpressure.

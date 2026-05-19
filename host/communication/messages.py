@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import time
 
-from ..config import PROTOCOL_VERSION, PROCESS_START_MS
+from ..config import PROTOCOL_VERSION, PROCESS_START_S
 
 # ---------------------------------------------------------------------------
 # Valid enumerated values (kept here for validation; also documents the spec)
@@ -28,7 +28,7 @@ def _envelope(msg_type: str, payload: dict) -> dict:
     return {
         "type": msg_type,
         "version": PROTOCOL_VERSION,
-        "timestamp_ms": int((time.monotonic() - PROCESS_START_MS) * 1000),
+        "timestamp_ms": int((time.monotonic() - PROCESS_START_S) * 1000),
         "payload": payload,
     }
 

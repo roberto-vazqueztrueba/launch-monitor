@@ -16,7 +16,7 @@ from ..config import (
     PROTOCOL_VERSION,
     SERIAL_PORT,
     SERIAL_TIMEOUT_S,
-    PROCESS_START_MS,
+    PROCESS_START_S,
 )
 
 if TYPE_CHECKING:
@@ -107,7 +107,7 @@ class SerialChannel:
         if "timestamp_ms" not in message:
             # Host uses ms since process start; Pico uses utime.ticks_ms() (boot-relative).
             # These clocks are independent — do not compare timestamps across directions.
-            message = {**message, "timestamp_ms": int((time.monotonic() - PROCESS_START_MS) * 1000)}
+            message = {**message, "timestamp_ms": int((time.monotonic() - PROCESS_START_S) * 1000)}
         if "payload" not in message:
             message = {**message, "payload": {}}
 

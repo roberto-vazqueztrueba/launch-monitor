@@ -12,9 +12,12 @@ Usage::
 import time
 
 # Capture the monotonic clock at import time.  All outgoing RPi→Pico envelopes
-# use (time.monotonic() - PROCESS_START_MS) so that timestamp_ms represents
+# use (time.monotonic() - PROCESS_START_S) * 1000 so that timestamp_ms represents
 # milliseconds since the host process started, as required by the data model.
-PROCESS_START_MS: float = time.monotonic()
+# time.monotonic() returns a float in seconds with sub-millisecond precision on
+# most platforms; the * 1000 conversion introduces negligible floating-point
+# rounding (at most 1 ms error after many hours of uptime).
+PROCESS_START_S: float = time.monotonic()
 
 # ---------------------------------------------------------------------------
 # Protocol
